@@ -149,25 +149,22 @@
 
         <h3>Step 1: Add Repository</h3>
         <div class="code">
-# Add the PiTrac repository to your system
-echo 'deb [arch=arm64] https://pitracml.github.io/packages bookworm main' | sudo tee /etc/apt/sources.list.d/pitrac.list
+echo 'deb [arch=arm64] https://pitraclm.github.io/packages bookworm main' | sudo tee /etc/apt/sources.list.d/pitrac.list
 </div>
 
         <h3>Step 2: Add GPG Key (Optional but Recommended)</h3>
         <div class="code">
-# Download and add the repository GPG key for package verification
-wget -qO - https://pitracml.github.io/packages/pitrac-repo.asc | sudo apt-key add -
+wget -qO - https://pitraclm.github.io/packages/pitrac-repo.asc | sudo apt-key add -
 </div>
 
         <h3>Step 3: Update and Install</h3>
         <div class="code">
-# Update package lists
 sudo apt update
 
-# Install PiTrac and dependencies
 sudo apt install pitrac
 
 # Or install specific packages
+
 sudo apt install opencv lgpio msgpack
 </div>
 
@@ -175,7 +172,7 @@ sudo apt install opencv lgpio msgpack
         <p>You can also download and install individual packages manually:</p>
         <div class="code">
 # Download a specific package
-wget https://pitracml.github.io/packages/pool/main/p/pitrac/pitrac_latest_arm64.deb
+wget https://pitraclm.github.io/packages/pool/main/p/pitrac/pitrac_latest_arm64.deb
 
 # Install manually
 sudo dpkg -i pitrac_latest_arm64.deb
@@ -219,7 +216,7 @@ dpkg -L pitrac
         <h3>Check Repository Status</h3>
         <div class="code">
 # Verify repository is accessible
-curl -I https://pitracml.github.io/packages/dists/bookworm/Release
+curl -I https://pitraclm.github.io/packages/dists/bookworm/Release
 
 # Check package cache
 apt-cache policy pitrac
@@ -227,9 +224,9 @@ apt-cache policy pitrac
 
         <h2>Documentation & Support</h2>
         <ul>
-            <li><a href="https://github.com/pitracml/packages">📖 Repository Source Code</a></li>
-            <li><a href="https://github.com/pitracml/packages/issues">🐛 Report Issues</a></li>
-            <li><a href="https://github.com/pitracml/packages/releases">📋 Release Notes</a></li>
+            <li><a href="https://github.com/pitraclm/packages">Repository Source Code</a></li>
+            <li><a href="https://github.com/pitraclm/packages/issues">Report Issues</a></li>
+            <li><a href="https://github.com/pitraclm/packages/releases">Release Notes</a></li>
         </ul>
 
         <h2>Build Information</h2>
@@ -242,7 +239,7 @@ apt-cache policy pitrac
         </ul>
 
         <div class="info">
-            <p><strong>Last Updated:</strong> This repository is continuously updated. Check the <a href="https://github.com/pitracml/packages/actions">build status</a> for the latest information.</p>
+            <p><strong>Last Updated:</strong> This repository is continuously updated. Check the <a href="https://github.com/pitraclm/packages/actions">build status</a> for the latest information.</p>
         </div>
 
         <div class="footer">

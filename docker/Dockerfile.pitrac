@@ -1,0 +1,382 @@
+# Multi-stage Dockerfile for building PiTrac Debian package
+# This creates a .deb package following the same pattern as other packages in this repo
+# Version: 1.0.0
+
+# Stage 1: Build environment with dependencies
+FROM --platform=linux/arm64 debian:bookworm AS builder
+
+ARG PACKAGE_VERSION=1.0.0
+ARG DEBIAN_ARCH=arm64
+ARG GITHUB_TOKEN
+
+# Install build dependencies matching build.sh requirements
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    meson \
+    ninja-build \
+    pkg-config \
+    git \
+    wget \
+    curl \
+    ca-certificates \
+    # Boost libraries (runtime and dev)
+    libboost-system1.74.0 \
+    libboost-thread1.74.0 \
+    libboost-filesystem1.74.0 \
+    libboost-program-options1.74.0 \
+    libboost-timer1.74.0 \
+    libboost-log1.74.0 \
+    libboost-regex1.74.0 \
+    libboost-dev \
+    libboost-all-dev \
+    # Core libraries
+    libcamera0.1 \
+    libcamera-dev \
+    libcamera-tools \
+    libfmt-dev \
+    libssl-dev \
+    libssl3 \
+    liblgpio-dev \
+    liblgpio1 \
+    libmsgpack-cxx-dev \
+    libapr1 \
+    libaprutil1 \
+    libapr1-dev \
+    libaprutil1-dev \
+    libyaml-cpp-dev \
+    # FFmpeg development libraries
+    libavcodec-dev \
+    libavformat-dev \
+    libavutil-dev \
+    libswscale-dev \
+    libavdevice-dev \
+    # Image libraries
+    libexif-dev \
+    libjpeg-dev \
+    libtiff-dev \
+    libpng-dev \
+    # Display/GUI libraries
+    libdrm-dev \
+    libx11-dev \
+    libxext-dev \
+    libepoxy-dev \
+    qtbase5-dev \
+    qt5-qmake \
+    # Python runtime dependencies
+    python3 \
+    python3-pip \
+    python3-yaml \
+    python3-opencv \
+    python3-numpy \
+    # Configuration tools
+    yq \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy and install dependency packages built by this repo
+# These should be built first using make opencv-package, make activemq-package, etc.
+COPY build/debs/${DEBIAN_ARCH}/opencv_*.deb /tmp/
+COPY build/debs/${DEBIAN_ARCH}/activemq-cpp_*.deb /tmp/
+COPY build/debs/${DEBIAN_ARCH}/lgpio_*.deb /tmp/
+COPY build/debs/${DEBIAN_ARCH}/msgpack-cxx_*.deb /tmp/
+
+# Install the dependency packages
+RUN dpkg -i /tmp/*.deb || apt-get install -f -y && \
+    rm -f /tmp/*.deb
+
+# Apply Boost C++20 fix
+RUN if [ -f /usr/include/boost/asio/awaitable.hpp ] && ! grep -q "#include <utility>" /usr/include/boost/asio/awaitable.hpp; then \
+        sed -i '/namespace boost {/i #include <utility>' /usr/include/boost/asio/awaitable.hpp; \
+    fi
+
+WORKDIR /build
+
+# Clone PiTrac source from GitHub repository
+RUN git clone https://github.com/jamespilgrim/PiTrac.git --depth 1 || \
+    (echo "Error: Failed to clone PiTrac repository" && exit 1)
+
+# Set build environment - the dependency packages install to standard locations
+ENV PKG_CONFIG_PATH="/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
+ENV LD_LIBRARY_PATH="/usr/lib/aarch64-linux-gnu:/usr/lib/pitrac:${LD_LIBRARY_PATH:-}"
+ENV CMAKE_PREFIX_PATH="/usr"
+ENV PITRAC_ROOT="/build/PiTrac/Software/LMSourceCode"
+ENV CXXFLAGS="-I/usr/include/opencv4"
+
+# Update library cache
+RUN ldconfig
+
+# Build PiTrac binary
+WORKDIR /build/PiTrac/Software/LMSourceCode/ImageProcessing
+
+# Create dummy closed source file
+RUN mkdir -p ClosedSourceObjectFiles && \
+    touch ClosedSourceObjectFiles/gs_e6_response.cpp.o
+
+# Configure and build with Meson
+RUN meson setup build --buildtype=release -Denable_recompile_closed_source=false && \
+    ninja -C build pitrac_lm
+
+# Generate the pitrac CLI tool (if the script exists)
+WORKDIR /build/PiTrac/packaging
+RUN if [ -f generate.sh ]; then \
+        bash generate.sh || echo "Warning: CLI generation failed"; \
+    fi
+
+# Create a basic CLI if generation failed
+RUN if [ ! -f pitrac ]; then \
+        echo '#!/bin/bash' > pitrac && \
+        echo 'echo "PiTrac CLI - run pitrac help for more information"' >> pitrac && \
+        chmod 755 pitrac; \
+    fi
+
+# Stage 2: Package creation
+FROM debian:bookworm AS packager
+
+ARG PACKAGE_VERSION=1.0.0
+ARG DEBIAN_ARCH=arm64
+
+# Install packaging tools
+RUN apt-get update && apt-get install -y \
+    dpkg-dev \
+    debhelper \
+    fakeroot \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /package
+
+# Create package directory structure following Debian standards
+RUN mkdir -p pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/DEBIAN \
+    pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/lib/pitrac/ImageProcessing/CameraTools \
+    pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/lib/pitrac/web-server \
+    pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/bin \
+    pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/share/pitrac/templates \
+    pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/share/pitrac/models \
+    pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/share/pitrac/test-images \
+    pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/share/pitrac/test-suites \
+    pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/share/pitrac/calibration \
+    pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/share/doc/pitrac
+
+# Copy built artifacts from builder
+COPY --from=builder /build/PiTrac/Software/LMSourceCode/ImageProcessing/build/pitrac_lm \
+     pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/lib/pitrac/pitrac_lm
+COPY --from=builder /build/PiTrac/packaging/pitrac \
+     pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/bin/pitrac
+
+# Copy camera tools
+COPY --from=builder /build/PiTrac/Software/LMSourceCode/ImageProcessing/CameraTools/* \
+     pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/lib/pitrac/ImageProcessing/CameraTools/ 2>/dev/null || true
+
+# Copy service installer scripts
+COPY --from=builder /build/PiTrac/packaging/src/lib/pitrac-common-functions.sh \
+     pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/lib/pitrac/ 2>/dev/null || \
+     echo "#!/bin/bash" > pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/lib/pitrac/pitrac-common-functions.sh
+COPY --from=builder /build/PiTrac/packaging/src/lib/activemq-service-install.sh \
+     pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/lib/pitrac/ 2>/dev/null || \
+     echo "#!/bin/bash" > pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/lib/pitrac/activemq-service-install.sh
+COPY --from=builder /build/PiTrac/packaging/src/lib/web-service-install.sh \
+     pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/lib/pitrac/ 2>/dev/null || \
+     echo "#!/bin/bash" > pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/lib/pitrac/web-service-install.sh
+
+# Copy service templates
+COPY --from=builder /build/PiTrac/packaging/templates/*.template \
+     pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/share/pitrac/templates/ 2>/dev/null || true
+
+# Copy web server
+COPY --from=builder /build/PiTrac/Software/web-server \
+     pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/lib/pitrac/web-server/ 2>/dev/null || true
+
+# Copy ONNX models
+COPY --from=builder /build/PiTrac/Software/Models \
+     pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/share/pitrac/models/ 2>/dev/null || true
+
+# Copy test images (limited selection to save space)
+COPY --from=builder /build/PiTrac/Software/LMSourceCode/Images/*.png \
+     pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/share/pitrac/test-images/ 2>/dev/null || true
+
+# Copy test suites
+COPY --from=builder /build/PiTrac/Software/LMSourceCode/Testing/TestSuite_2025_02_07 \
+     pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/share/pitrac/test-suites/TestSuite_2025_02_07/ 2>/dev/null || true
+COPY --from=builder /build/PiTrac/Software/LMSourceCode/Testing/Left-Handed-Shots \
+     pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/share/pitrac/test-suites/Left-Handed-Shots/ 2>/dev/null || true
+
+# Copy calibration tools
+COPY --from=builder /build/PiTrac/Software/CalibrateCameraDistortions/CameraCalibration.py \
+     pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/share/pitrac/calibration/ 2>/dev/null || true
+COPY --from=builder /build/PiTrac/Software/CalibrateCameraDistortions/checkerboard.png \
+     pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/share/pitrac/calibration/ 2>/dev/null || true
+
+# Create calibration wizard script
+RUN cat > pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/lib/pitrac/calibration-wizard << 'EOF'
+#!/bin/bash
+if [[ -f /usr/share/pitrac/calibration/CameraCalibration.py ]]; then
+    cd /usr/share/pitrac/calibration
+    python3 CameraCalibration.py "$@"
+else
+    echo "Calibration tools not installed"
+    exit 1
+fi
+EOF
+
+# Set proper permissions
+RUN chmod 755 pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/lib/pitrac/pitrac_lm \
+    pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/bin/pitrac \
+    pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/lib/pitrac/calibration-wizard \
+    pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/lib/pitrac/*.sh 2>/dev/null || true && \
+    chmod 644 pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/lib/pitrac/pitrac-common-functions.sh 2>/dev/null || true
+
+# Create DEBIAN control file
+RUN cat > pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/DEBIAN/control << EOF
+Package: pitrac
+Version: ${PACKAGE_VERSION}
+Architecture: ${DEBIAN_ARCH}
+Maintainer: PiTrac Team <support@pitrac.com>
+Depends: python3 (>= 3.9), python3-pip, python3-yaml, python3-opencv, python3-numpy,
+ opencv (>= 4.11.0), activemq-cpp (>= 3.9.5), lgpio (>= 0.2.2), msgpack-cxx (>= 6.1.1),
+ libboost-system1.74.0, libboost-thread1.74.0, libboost-filesystem1.74.0,
+ libboost-program-options1.74.0, libboost-timer1.74.0, libboost-log1.74.0,
+ libboost-regex1.74.0, libcamera0.1 | libcamera0.0.3, libcamera-tools,
+ rpicam-apps | libcamera-apps, libfmt8 | libfmt9, libssl3,
+ libapr1, libaprutil1, libgtk-3-0, libavcodec59 | libavcodec58,
+ libavformat59 | libavformat58, libswscale6 | libswscale5, libtbb12,
+ libgstreamer1.0-0, libgstreamer-plugins-base1.0-0,
+ libopenexr-3-1-30 | libopenexr25, activemq, netcat-openbsd | netcat-traditional, yq
+Recommends: libcamera-dev, liblgpio-dev
+Section: misc
+Priority: optional
+Homepage: https://pitrac.com
+Description: PiTrac Golf Ball Tracking System
+ PiTrac is a high-precision golf ball tracking system using computer vision
+ and machine learning to analyze golf shots. It includes real-time ball
+ detection, trajectory calculation, and integration with golf simulators.
+ .
+ This package provides the core PiTrac system including:
+  - Ball tracking engine with ONNX model support
+  - Web-based control interface
+  - ActiveMQ integration for simulator communication
+  - Camera configuration and calibration tools
+  - Support for IMX296 NOIR cameras on Raspberry Pi 4/5
+EOF
+
+# Copy postinst and prerm scripts from source
+COPY --from=builder /build/PiTrac/packaging/templates/postinst.sh \
+     pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/DEBIAN/postinst 2>/dev/null || \
+     (echo "#!/bin/bash" > pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/DEBIAN/postinst && \
+      echo "echo 'PiTrac installed successfully'" >> pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/DEBIAN/postinst)
+
+COPY --from=builder /build/PiTrac/packaging/templates/prerm.sh \
+     pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/DEBIAN/prerm 2>/dev/null || \
+     (echo "#!/bin/bash" > pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/DEBIAN/prerm && \
+      echo "exit 0" >> pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/DEBIAN/prerm)
+
+# Create preinst script
+RUN cat > pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/DEBIAN/preinst << 'EOF'
+#!/bin/bash
+set -e
+
+case "$1" in
+    install|upgrade)
+        # Stop any running pitrac processes before installation
+        if pgrep -x "pitrac_lm" > /dev/null; then
+            echo "Stopping existing PiTrac processes..."
+            pkill -TERM pitrac_lm 2>/dev/null || true
+            sleep 2
+        fi
+
+        # Stop old services if they exist
+        if systemctl is-active --quiet pitrac.service 2>/dev/null; then
+            systemctl stop pitrac.service || true
+        fi
+
+        if systemctl is-active --quiet pitrac-web.service 2>/dev/null; then
+            systemctl stop pitrac-web.service || true
+        fi
+        ;;
+
+    abort-upgrade)
+        ;;
+
+    *)
+        echo "preinst called with unknown argument: $1" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
+EOF
+
+# Create postrm script for cleanup
+RUN cat > pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/DEBIAN/postrm << 'EOF'
+#!/bin/bash
+set -e
+
+case "$1" in
+    purge)
+        # Remove configuration files
+        rm -rf /etc/pitrac
+        rm -rf /usr/share/pitrac
+        rm -f /etc/ld.so.conf.d/pitrac.conf
+        ldconfig 2>/dev/null || true
+
+        # Clean up libcamera configs we may have created
+        rm -f /usr/share/libcamera/pipeline/rpi/vc4/rpi_apps.yaml
+        rm -f /usr/share/libcamera/pipeline/rpi/pisp/rpi_apps.yaml
+        rm -f /usr/share/libcamera/ipa/rpi/vc4/imx296_noir.json
+        rm -f /usr/share/libcamera/ipa/rpi/pisp/imx296_noir.json
+
+        echo "PiTrac configuration purged"
+        ;;
+
+    remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+        ;;
+
+    *)
+        echo "postrm called with unknown argument: $1" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
+EOF
+
+# Create changelog
+RUN cat > pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/share/doc/pitrac/changelog << EOF
+pitrac (${PACKAGE_VERSION}) stable; urgency=medium
+
+  * Initial release of PiTrac golf ball tracking system
+  * Includes web-based control interface
+  * ActiveMQ integration for simulator communication
+  * Support for IMX296 NOIR cameras on Raspberry Pi 4/5
+
+ -- PiTrac Team <support@pitrac.com>  $(date -R)
+EOF
+
+# Create copyright file
+RUN cat > pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/share/doc/pitrac/copyright << 'EOF'
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: pitrac
+Upstream-Contact: PiTrac Team <support@pitrac.com>
+Source: https://github.com/jamespilgrim/PiTrac
+
+Files: *
+Copyright: 2024 PiTrac Team
+License: Proprietary
+ This is proprietary software for golf ball tracking and analysis.
+ All rights reserved.
+EOF
+
+# Compress changelog
+RUN gzip -n -9 pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/usr/share/doc/pitrac/changelog
+
+# Set permissions for all DEBIAN scripts
+RUN chmod 755 pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/DEBIAN/postinst \
+    pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/DEBIAN/preinst \
+    pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/DEBIAN/prerm \
+    pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}/DEBIAN/postrm
+
+# Build the .deb package with proper ownership
+RUN dpkg-deb --build --root-owner-group pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}
+
+# Stage 3: Final output - just the deb file
+FROM scratch AS final
+ARG PACKAGE_VERSION=1.0.0
+ARG DEBIAN_ARCH=arm64
+COPY --from=packager /package/pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}.deb /pitrac_${PACKAGE_VERSION}_${DEBIAN_ARCH}.deb

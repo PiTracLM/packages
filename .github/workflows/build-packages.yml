@@ -1,0 +1,432 @@
+name: Build and Deploy PiTrac Packages
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'opencv/**'
+      - 'pitrac/**'
+      - 'docker/**'
+      - 'scripts/**'
+      - 'Makefile'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: 'Packages to build (space-separated: lgpio msgpack opencv pitrac)'
+        required: false
+        default: 'all'
+      architectures:
+        description: 'Architectures to build (arm64)'
+        required: false
+        default: 'arm64'
+      deploy:
+        description: 'Deploy to APT repository'
+        type: boolean
+        required: false
+        default: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: pitrac
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.changes.outputs.packages }}
+      build-needed: ${{ steps.changes.outputs.build-needed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed packages
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ "${{ github.event.inputs.packages }}" = "all" ]; then
+              echo "packages=lgpio msgpack opencv pitrac" >> $GITHUB_OUTPUT
+            else
+              echo "packages=${{ github.event.inputs.packages }}" >> $GITHUB_OUTPUT
+            fi
+            echo "build-needed=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Check for changes in last commit or PR
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          else
+            BASE_SHA="${{ github.event.before }}"
+            HEAD_SHA="${{ github.sha }}"
+          fi
+
+          # If BASE_SHA is empty (first commit), compare with HEAD~1
+          if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            BASE_SHA="HEAD~1"
+          fi
+
+          CHANGED_FILES=$(git diff --name-only $BASE_SHA $HEAD_SHA)
+          echo "Changed files: $CHANGED_FILES"
+
+          PACKAGES=""
+          BUILD_NEEDED="false"
+
+          # Check if build system files changed (rebuild all)
+          if echo "$CHANGED_FILES" | grep -E "(Makefile|scripts/|docker/|\.github/workflows/)" > /dev/null; then
+            PACKAGES="lgpio msgpack opencv pitrac"
+            BUILD_NEEDED="true"
+            echo "Build system changed, rebuilding all packages"
+          else
+            # Check specific package changes
+            if echo "$CHANGED_FILES" | grep "opencv/" > /dev/null; then
+              PACKAGES="$PACKAGES opencv pitrac"
+              BUILD_NEEDED="true"
+            fi
+            if echo "$CHANGED_FILES" | grep "pitrac/" > /dev/null; then
+              PACKAGES="$PACKAGES pitrac"
+              BUILD_NEEDED="true"
+            fi
+          fi
+
+          echo "packages=$PACKAGES" >> $GITHUB_OUTPUT
+          echo "build-needed=$BUILD_NEEDED" >> $GITHUB_OUTPUT
+
+  setup-matrix:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.build-needed == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - name: Setup build matrix
+        id: matrix
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            PACKAGES="${{ github.event.inputs.packages }}"
+            ARCHITECTURES="${{ github.event.inputs.architectures }}"
+          else
+            PACKAGES="${{ needs.detect-changes.outputs.packages }}"
+            ARCHITECTURES="arm64"
+          fi
+
+          if [ "$PACKAGES" = "all" ]; then
+            PACKAGES="lgpio msgpack opencv pitrac"
+          fi
+
+          # Create matrix
+          MATRIX='{"include":['
+          FIRST=true
+
+          for pkg in $PACKAGES; do
+            for arch in $ARCHITECTURES; do
+              if [ "$FIRST" = "true" ]; then
+                FIRST=false
+              else
+                MATRIX="$MATRIX,"
+              fi
+              MATRIX="$MATRIX{\"package\":\"$pkg\",\"arch\":\"$arch\"}"
+            done
+          done
+
+          MATRIX="$MATRIX]}"
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+          echo "Build matrix: $MATRIX"
+
+  build-packages:
+    needs: [detect-changes, setup-matrix]
+    if: needs.detect-changes.outputs.build-needed == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
+      fail-fast: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup build environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y reprepro dpkg-dev
+          make setup
+
+      - name: Generate package version
+        id: version
+        run: |
+          # Load or generate version
+          if [ -f VERSION ]; then
+            source VERSION
+          fi
+
+          case "${{ matrix.package }}" in
+            lgpio)
+              VERSION="${LGPIO_VERSION:-0.2.2-1}"
+              ;;
+            msgpack)
+              VERSION="${MSGPACK_VERSION:-6.1.1-1}"
+              ;;
+            opencv)
+              VERSION="${OPENCV_VERSION:-4.11.0-1}"
+              ;;
+            pitrac)
+              # Use date-based versioning for pitrac
+              VERSION="$(date +%Y.%m.%d)-${{ github.run_number }}"
+              ;;
+          esac
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Package ${{ matrix.package }} version: $VERSION"
+
+      - name: Build package
+        run: |
+          echo "Building ${{ matrix.package }} for ${{ matrix.arch }}"
+          ./scripts/build-package.sh ${{ matrix.package }} ${{ matrix.arch }} ${{ steps.version.outputs.version }}
+
+      - name: Test package
+        run: |
+          # Basic package validation
+          DEB_FILE=$(find build/debs/${{ matrix.arch }} -name "${{ matrix.package }}*.deb" | head -1)
+          if [ -f "$DEB_FILE" ]; then
+            echo "Package built: $DEB_FILE"
+            dpkg-deb -I "$DEB_FILE"
+            dpkg-deb -c "$DEB_FILE" | head -20
+          else
+            echo "ERROR: Package not found"
+            exit 1
+          fi
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.package }}-${{ matrix.arch }}-${{ steps.version.outputs.version }}
+          path: build/debs/${{ matrix.arch }}/*.deb
+          retention-days: 30
+
+      - name: Upload build metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: metadata-${{ matrix.package }}-${{ matrix.arch }}
+          path: build/debs/${{ matrix.arch }}/*.metadata
+          retention-days: 7
+
+  test-packages:
+    needs: build-packages
+    if: always() && needs.build-packages.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all package artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: downloaded-packages
+
+      - name: Organize packages
+        run: |
+          mkdir -p build/debs/arm64
+          find downloaded-packages -name "*.deb" -exec cp {} build/debs/ \;
+
+          # Organize by architecture based on filename (arm64 only)
+          for deb in build/debs/*.deb; do
+            if [[ "$deb" =~ arm64 ]]; then
+              mv "$deb" build/debs/arm64/
+            fi
+          done
+
+      - name: Test package installation
+        run: |
+          if [ -f scripts/test-packages.sh ]; then
+            ./scripts/test-packages.sh build/debs
+          else
+            echo "Basic package validation..."
+            for deb in build/debs/*/*.deb; do
+              echo "Testing $deb"
+              dpkg-deb -I "$deb" > /dev/null
+              echo "✓ $deb is valid"
+            done
+          fi
+
+  create-repository:
+    needs: [build-packages, test-packages]
+    if: always() && needs.build-packages.result == 'success' && needs.test-packages.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup repository tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y reprepro gnupg2
+
+      - name: Download all package artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: downloaded-packages
+
+      - name: Organize packages
+        run: |
+          mkdir -p build/debs/arm64
+          find downloaded-packages -name "*.deb" -exec cp {} build/debs/ \;
+
+          # Organize by architecture (arm64 only)
+          for deb in build/debs/*.deb; do
+            ARCH=$(dpkg-deb -f "$deb" Architecture)
+            mkdir -p "build/debs/$ARCH"
+            mv "$deb" "build/debs/$ARCH/"
+          done
+
+      - name: Setup GPG key for signing
+        if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true')
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          if [ -n "$GPG_PRIVATE_KEY" ]; then
+            echo "$GPG_PRIVATE_KEY" | base64 -d | gpg --batch --import
+            echo "GPG key imported for package signing"
+          else
+            echo "No GPG key provided, packages will be unsigned"
+          fi
+
+      - name: Initialize repository
+        run: |
+          make repo-init
+
+      - name: Update repository
+        run: |
+          ./scripts/repo-update.sh build/repo build/debs
+
+      - name: Upload repository
+        uses: actions/upload-artifact@v4
+        with:
+          name: apt-repository-${{ github.sha }}
+          path: build/repo/
+          retention-days: 30
+
+  deploy-repository:
+    needs: create-repository
+    if: (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true')) && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Download repository
+        uses: actions/download-artifact@v4
+        with:
+          name: apt-repository-${{ github.sha }}
+          path: build/repo
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "PiTrac Build Bot"
+          git config --global user.email "build@pitrac.org"
+
+      - name: Update repository in main branch
+        run: |
+          # Copy repository content to main branch (preserve source code)
+          # This allows GitHub Pages workflow to deploy from main branch
+
+          # Copy APT repository files to root
+          cp -r build/repo/dists .
+          cp -r build/repo/pool .
+
+          # Copy GPG keys and other metadata if they exist
+          if [ -d "build/repo" ]; then
+            find build/repo -maxdepth 1 -name "*.asc" -exec cp {} . \;
+            find build/repo -maxdepth 1 -name "Release*" -exec cp {} . \; 2>/dev/null || true
+          fi
+
+          # Stage only APT repository files
+          git add dists/ pool/ *.asc 2>/dev/null || true
+
+          # Commit changes if there are any
+          if ! git diff --staged --quiet; then
+            git commit -m "Update APT repository - ${{ github.sha }}
+
+            Updated packages:
+            $(find pool -name '*.deb' -newer dists/bookworm/Release 2>/dev/null | head -10 || echo 'Package metadata updated')
+
+            Auto-generated by build workflow"
+            git push origin main
+            echo "APT repository updated in main branch"
+            echo "GitHub Pages workflow will deploy automatically"
+          else
+            echo "No repository changes to commit"
+          fi
+
+      - name: Update release notes
+        if: github.event_name == 'release'
+        run: |
+          echo "## Package Repository" >> release-notes.md
+          echo "" >> release-notes.md
+          echo "APT repository has been updated with new packages." >> release-notes.md
+          echo "" >> release-notes.md
+          echo "### Installation" >> release-notes.md
+          echo "" >> release-notes.md
+          echo '```bash' >> release-notes.md
+          echo "# Add repository" >> release-notes.md
+          echo "echo 'deb [arch=arm64] https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }} bookworm main' | sudo tee /etc/apt/sources.list.d/pitrac.list" >> release-notes.md
+          echo "" >> release-notes.md
+          echo "# Update and install" >> release-notes.md
+          echo "sudo apt update" >> release-notes.md
+          echo "sudo apt install pitrac" >> release-notes.md
+          echo '```' >> release-notes.md
+
+  cleanup:
+    needs: [build-packages, test-packages, create-repository, deploy-repository]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clean up intermediate artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Clean up build artifacts older than 7 days
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+            for (const artifact of artifacts.data.artifacts) {
+              const createdAt = new Date(artifact.created_at);
+              if (createdAt < oneWeekAgo && artifact.name.startsWith('metadata-')) {
+                console.log(`Deleting old artifact: ${artifact.name}`);
+                await github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id
+                });
+              }
+            }

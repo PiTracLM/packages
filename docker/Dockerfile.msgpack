@@ -1,0 +1,85 @@
+# msgpack-cxx Debian Package Builder
+# Builds: libmsgpack-cxx-dev package (header-only library)
+ARG DEBIAN_ARCH=arm64
+FROM --platform=linux/arm64 debian:bookworm-slim AS arm64-base
+FROM ${DEBIAN_ARCH}-base
+
+ARG PACKAGE_VERSION=6.1.1-1
+ARG DEBIAN_ARCH
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    wget \
+    unzip \
+    libboost-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build
+
+# Download msgpack-c++ source (header-only library)
+RUN wget -q https://github.com/msgpack/msgpack-c/archive/refs/heads/cpp_master.zip && \
+    unzip -q cpp_master.zip && \
+    mv msgpack-c-cpp_master msgpack-cxx
+
+# Configure and build with Pi5 optimizations
+# Removed -flto flag due to cross-compilation segfault issues on ARM64
+RUN cd msgpack-cxx && \
+    cmake -S . -B build \
+        -DMSGPACK_CXX20=ON \
+        -DMSGPACK_BUILD_TESTS=OFF \
+        -DMSGPACK_BUILD_EXAMPLES=OFF \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_CXX_FLAGS="-mcpu=cortex-a76 -O3 -fomit-frame-pointer -ftree-vectorize" \
+        -DCMAKE_C_FLAGS="-mcpu=cortex-a76 -O3 -fomit-frame-pointer -ftree-vectorize" && \
+    cmake --build build -j$(nproc)
+
+# Install to temporary location
+RUN cd msgpack-cxx && \
+    DESTDIR=/build/pkg cmake --install build
+
+# Create package structure
+RUN mkdir -p pkg/DEBIAN && \
+    mkdir -p pkg/usr/lib/pkgconfig
+
+# Create pkg-config file
+RUN printf '%s\n' \
+        'prefix=/usr' \
+        'exec_prefix=${prefix}' \
+        'includedir=${prefix}/include' \
+        '' \
+        'Name: msgpack-cxx' \
+        'Description: MessagePack for C++' \
+        'Version: 6.1.1' \
+        'Cflags: -I${includedir}' \
+        > pkg/usr/lib/pkgconfig/msgpack-cxx.pc
+
+# Create control file
+RUN printf '%s\n' \
+        "Package: libmsgpack-cxx-dev" \
+        "Version: ${PACKAGE_VERSION}" \
+        "Architecture: all" \
+        "Maintainer: PiTrac Build System <build@pitrac.org>" \
+        "Section: libdevel" \
+        "Priority: optional" \
+        "Homepage: https://msgpack.org/" \
+        "Depends: libboost-dev" \
+        "Description: MessagePack implementation for C++ - development files" \
+        " MessagePack is an efficient binary serialization format. It lets you exchange" \
+        " data among multiple languages like JSON. But it's faster and smaller." \
+        " ." \
+        " This package contains the C++ header-only library files." \
+        > pkg/DEBIAN/control
+
+# Build the package
+RUN dpkg-deb --build --root-owner-group pkg libmsgpack-cxx-dev_${PACKAGE_VERSION}_all.deb
+
+# Move to output location
+RUN mkdir -p /output && \
+    mv *.deb /output/ && \
+    ls -la /output/
+
+# Keep container running for extraction
+CMD ["sleep", "infinity"]

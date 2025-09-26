@@ -1,0 +1,272 @@
+# Use the build-opencv-native-pi.sh for building. This is not working at this time because of QEMU issues.
+
+ARG DEBIAN_ARCH=arm64
+FROM --platform=linux/arm64 debian:bookworm-slim as arm64-base
+FROM ${DEBIAN_ARCH}-base
+
+ARG PACKAGE_VERSION=4.11.0-1
+ARG DEBIAN_ARCH
+
+# Install build dependencies with OpenCL and Raspberry Pi 5 optimizations
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    dpkg-dev \
+    devscripts \
+    fakeroot \
+    dh-make \
+    cmake \
+    git \
+    pkg-config \
+    wget \
+    unzip \
+    zlib1g-dev \
+    libgtk-3-dev \
+    libavcodec-dev \
+    libavformat-dev \
+    libswscale-dev \
+    libv4l-dev \
+    libxvidcore-dev \
+    libx264-dev \
+    libjpeg-dev \
+    libpng-dev \
+    libtiff-dev \
+    gfortran \
+    openexr \
+    libatlas-base-dev \
+    python3-dev \
+    python3-numpy \
+    libtbb-dev \
+    libdc1394-dev \
+    libopenexr-dev \
+    libgstreamer-plugins-base1.0-dev \
+    libgstreamer1.0-dev \
+    libglu1-mesa-dev \
+    libgl1-mesa-dev \
+    ocl-icd-opencl-dev \
+    opencl-headers \
+    libopencl-clang-dev \
+    clinfo \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /build
+
+# Download OpenCV and contrib
+RUN wget -O opencv.zip https://github.com/opencv/opencv/archive/4.11.0.zip && \
+    wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.11.0.zip && \
+    unzip opencv.zip && \
+    unzip opencv_contrib.zip && \
+    rm opencv.zip opencv_contrib.zip
+
+# Create Debian package structure
+RUN cd opencv-4.11.0 && \
+    mkdir -p debian && \
+    cd debian && \
+    # Create control file
+    printf '%s\n' \
+        'Source: opencv' \
+        'Section: libs' \
+        'Priority: optional' \
+        'Maintainer: PiTrac Build System <build@pitrac.org>' \
+        'Build-Depends: debhelper-compat (= 13), cmake, build-essential, pkg-config,' \
+        '               zlib1g-dev, libgtk-3-dev, libavcodec-dev, libavformat-dev,' \
+        '               libswscale-dev, libv4l-dev, libxvidcore-dev, libx264-dev,' \
+        '               libjpeg-dev, libpng-dev, libtiff-dev, gfortran, openexr,' \
+        '               libatlas-base-dev, python3-dev, python3-numpy, libtbb-dev,' \
+        '               libdc1394-dev, libopenexr-dev, libgstreamer-plugins-base1.0-dev,' \
+        '               libgstreamer1.0-dev, libglu1-mesa-dev, libgl1-mesa-dev' \
+        'Standards-Version: 4.6.0' \
+        'Homepage: https://opencv.org/' \
+        '' \
+        'Package: libopencv4.11' \
+        'Architecture: any' \
+        'Depends: \${shlibs:Depends}, \${misc:Depends}' \
+        'Description: OpenCV Computer Vision Library - runtime' \
+        ' OpenCV (Open Source Computer Vision Library) is a library of programming' \
+        ' functions mainly aimed at real-time computer vision.' \
+        ' .' \
+        ' This package contains the runtime libraries.' \
+        '' \
+        'Package: libopencv-dev' \
+        'Architecture: any' \
+        'Section: libdevel' \
+        'Depends: libopencv4.11 (= \${binary:Version}), \${misc:Depends}' \
+        'Description: OpenCV Computer Vision Library - development files' \
+        ' OpenCV (Open Source Computer Vision Library) is a library of programming' \
+        ' functions mainly aimed at real-time computer vision.' \
+        ' .' \
+        ' This package contains the development files including headers and pkg-config.' \
+        > control
+
+# Create rules file with optimized OpenCV build
+RUN cd opencv-4.11.0/debian && \
+    printf '%s\n' \
+        '#!/usr/bin/make -f' \
+        '' \
+        'export DEB_BUILD_MAINT_OPTIONS = hardening=+all' \
+        'export DEB_CFLAGS_MAINT_APPEND = -Wall -pedantic' \
+        'export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed' \
+        '' \
+        '%:' \
+        '\tdh $@' \
+        '' \
+        'override_dh_auto_configure:' \
+        '\t# Set pkg-config to find system libraries and ARM64/Pi5 optimization flags' \
+        '\t# Removed -flto flag due to cross-compilation segfault issues on ARM64' \
+        '\texport PKG_CONFIG_PATH=/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig:$$PKG_CONFIG_PATH && \\' \
+        '\texport CFLAGS="-mcpu=cortex-a76 -O3 -ftree-vectorize -fomit-frame-pointer -falign-functions=16 -falign-loops=16 -ffast-math" && \\' \
+        '\texport CXXFLAGS="-mcpu=cortex-a76 -O3 -ftree-vectorize -fomit-frame-pointer -falign-functions=16 -falign-loops=16 -ffast-math" && \\' \
+        '\tcmake -S . -B build \\' \
+        '\t\t-DCMAKE_BUILD_TYPE=Release \\' \
+        '\t\t-DCMAKE_INSTALL_PREFIX=/usr \\' \
+        '\t\t-DCMAKE_INSTALL_LIBDIR=lib/$(DEB_HOST_MULTIARCH) \\' \
+        '\t\t-DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib-4.11.0/modules \\' \
+        '\t\t-DWITH_TBB=ON \\' \
+        '\t\t-DWITH_V4L=ON \\' \
+        '\t\t-DWITH_LIBV4L=ON \\' \
+        '\t\t-DWITH_OPENGL=ON \\' \
+        '\t\t-DWITH_OPENCL=OFF \\' \
+        '\t\t-DWITH_FFMPEG=ON \\' \
+        '\t\t-DWITH_NEON=ON \\' \
+        '\t\t-DBUILD_TESTS=OFF \\' \
+        '\t\t-DBUILD_PERF_TESTS=OFF \\' \
+        '\t\t-DBUILD_EXAMPLES=OFF \\' \
+        '\t\t-DBUILD_DOCS=OFF \\' \
+        '\t\t-DWITH_PNG=ON \\' \
+        '\t\t-DWITH_JPEG=ON \\' \
+        '\t\t-DWITH_TIFF=ON \\' \
+        '\t\t-DBUILD_PNG=OFF \\' \
+        '\t\t-DBUILD_JPEG=OFF \\' \
+        '\t\t-DBUILD_TIFF=OFF \\' \
+        '\t\t-DBUILD_ZLIB=OFF \\' \
+        '\t\t-DBUILD_JASPER=OFF \\' \
+        '\t\t-DBUILD_WEBP=OFF \\' \
+        '\t\t-DBUILD_OPENEXR=OFF \\' \
+        '\t\t-DBUILD_opencv_python2=OFF \\' \
+        '\t\t-DBUILD_opencv_python3=OFF \\' \
+        '\t\t-DBUILD_opencv_java=OFF \\' \
+        '\t\t-DBUILD_opencv_apps=OFF \\' \
+        '\t\t-DBUILD_opencv_js=OFF \\' \
+        '\t\t-DBUILD_LIST=core,imgproc,imgcodecs,calib3d,features2d,highgui,videoio,photo,dnn,objdetect,xfeatures2d,ximgproc,aruco \\' \
+        '\t\t-DBUILD_SHARED_LIBS=ON \\' \
+        '\t\t-DOPENCV_ENABLE_NONFREE=ON \\' \
+        '\t\t-DOPENCV_DNN_OPENCL=OFF \\' \
+        '\t\t-DBUILD_PROTOBUF=ON \\' \
+        '\t\t-DWITH_PROTOBUF=ON \\' \
+        '\t\t-DOPENCV_DNN_SUPPORT_ONNX=ON \\' \
+        '\t\t-DWITH_GSTREAMER=ON \\' \
+        '\t\t-DWITH_VTK=OFF \\' \
+        '\t\t-DWITH_ITT=OFF \\' \
+        '\t\t-DWITH_OPENVX=OFF' \
+        '' \
+        'override_dh_auto_build:' \
+        '\tcmake --build build -j$(shell nproc)' \
+        '' \
+        'override_dh_auto_install:' \
+        '\tDESTDIR=$(CURDIR)/debian/tmp cmake --install build' \
+        '' \
+        '\t# Split into runtime and dev packages - install to standard Debian locations' \
+        '\tmkdir -p debian/libopencv4.11/usr/lib/$(DEB_HOST_MULTIARCH)' \
+        '\tmkdir -p debian/libopencv-dev/usr/include' \
+        '\tmkdir -p debian/libopencv-dev/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig' \
+        '' \
+        '\t# Runtime files - shared libraries' \
+        '\tcp debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/*.so.* debian/libopencv4.11/usr/lib/$(DEB_HOST_MULTIARCH)/ || true' \
+        '' \
+        '\t# Development files' \
+        '\tcp -r debian/tmp/usr/include/* debian/libopencv-dev/usr/include/' \
+        '\tcp debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/*.so debian/libopencv-dev/usr/lib/$(DEB_HOST_MULTIARCH)/ || true' \
+        '\tcp debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/*.a debian/libopencv-dev/usr/lib/$(DEB_HOST_MULTIARCH)/ || true' \
+        '' \
+        '\t# Create pkg-config file' \
+        '\tprintf \'%%s\\n\' \\' \
+        '\t\t\'prefix=/usr\' \\' \
+        '\t\t\'exec_prefix=$${prefix}\' \\' \
+        '\t\t\'libdir=$${exec_prefix}/lib/$(DEB_HOST_MULTIARCH)\' \\' \
+        '\t\t\'includedir=$${prefix}/include/opencv4\' \\' \
+        '\t\t\'\'\' \\' \
+        '\t\t\'Name: OpenCV\' \\' \
+        '\t\t\'Description: Open Source Computer Vision Library\' \\' \
+        '\t\t\'Version: 4.11.0\' \\' \
+        '\t\t\'Libs: -L$${libdir} -lopencv_highgui -lopencv_objdetect -lopencv_photo -lopencv_calib3d -lopencv_features2d -lopencv_flann -lopencv_videoio -lopencv_imgcodecs -lopencv_imgproc -lopencv_core -lopencv_dnn -lopencv_xfeatures2d -lopencv_ximgproc -lopencv_aruco\' \\' \
+        '\t\t\'Libs.private: -ldl -lm -lpthread -lrt\' \\' \
+        '\t\t\'Cflags: -I$${includedir}\' \\' \
+        '\t\t> debian/libopencv-dev/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig/opencv4.pc' \
+        '' \
+        'override_dh_auto_test:' \
+        '\t# Skip tests for packaging' \
+        '' \
+        'override_dh_auto_clean:' \
+        '\trm -rf build' \
+        > rules
+
+# Create install files
+RUN cd opencv-4.11.0/debian && \
+    echo "usr/lib/*/libopencv*.so.*" > libopencv4.11.install && \
+    echo "usr/include/*" > libopencv-dev.install && \
+    echo "usr/lib/*/libopencv*.so" >> libopencv-dev.install && \
+    echo "usr/lib/*/libopencv*.a" >> libopencv-dev.install && \
+    echo "usr/lib/*/pkgconfig/*" >> libopencv-dev.install
+
+# Create changelog
+RUN cd opencv-4.11.0/debian && \
+    printf '%s\n' \
+        "opencv (${PACKAGE_VERSION}) stable; urgency=medium" \
+        '' \
+        '  * Package built by PiTrac build system' \
+        '  * OpenCV 4.11.0 with Raspberry Pi 5 optimizations' \
+        '  * Includes DNN module with ONNX support for YOLO models' \
+        '  * Optimized for Cortex-A76 with NEON and FP16 support' \
+        '  * OpenCL support for GPU acceleration' \
+        '  * Contrib modules: xfeatures2d, ximgproc, aruco' \
+        '  * Source from https://github.com/opencv/opencv' \
+        '' \
+        " -- PiTrac Build System <build@pitrac.org>  $(date -R)" \
+        > changelog
+
+# Create compat file
+RUN cd opencv-4.11.0/debian && echo "13" > compat
+
+# Create copyright file
+RUN cd opencv-4.11.0/debian && \
+    printf '%s\n' \
+        'Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/' \
+        'Upstream-Name: opencv' \
+        'Upstream-Contact: https://opencv.org/' \
+        'Source: https://github.com/opencv/opencv' \
+        '' \
+        'Files: *' \
+        'Copyright: 2000-2023, Intel Corporation, all rights reserved' \
+        '           2009-2011, Willow Garage Inc., all rights reserved' \
+        '           2009-2016, NVIDIA Corporation, all rights reserved' \
+        '           2010-2013, Advanced Micro Devices, Inc., all rights reserved' \
+        '           2015-2016, OpenCV Foundation, all rights reserved' \
+        '           2015-2016, Itseez Inc., all rights reserved' \
+        'License: BSD-3-Clause' \
+        ' Redistribution and use in source and binary forms, with or without' \
+        ' modification, are permitted provided that the following conditions are met:' \
+        ' .' \
+        ' * Redistributions of source code must retain the above copyright notice,' \
+        '   this list of conditions and the following disclaimer.' \
+        ' * Redistributions in binary form must reproduce the above copyright notice,' \
+        '   this list of conditions and the following disclaimer in the documentation' \
+        '   and/or other materials provided with the distribution.' \
+        ' * Neither the names of the copyright holders nor the names of the contributors' \
+        '   may be used to endorse or promote products derived from this software' \
+        '   without specific prior written permission.' \
+        > copyright
+
+# Make rules executable
+RUN chmod +x opencv-4.11.0/debian/rules
+
+# Build the package
+RUN cd opencv-4.11.0 && \
+    dpkg-buildpackage -b -uc -us --host-arch=${DEBIAN_ARCH}
+
+# Move packages to output location
+RUN mkdir -p /output && \
+    mv *.deb /output/ && \
+    ls -la /output/
+
+# Default command to keep container running for extraction
+CMD ["sleep", "infinity"]

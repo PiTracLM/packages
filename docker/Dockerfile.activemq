@@ -1,0 +1,148 @@
+# ActiveMQ-CPP Debian Package Builder
+# Builds: libactivemq-cpp and libactivemq-cpp-dev packages
+
+# USE the build-activemq-native-pi.sh for building. This is not working at this time because of QEMU issues.
+
+ARG DEBIAN_ARCH=arm64
+FROM --platform=linux/arm64 debian:bookworm-slim AS arm64-base
+
+FROM ${DEBIAN_ARCH}-base
+
+ARG PACKAGE_VERSION=3.9.5-1
+ARG DEBIAN_ARCH
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    dpkg-dev \
+    debhelper \
+    fakeroot \
+    wget \
+    tar \
+    autoconf \
+    automake \
+    autotools-dev \
+    libtool \
+    pkg-config \
+    libssl-dev \
+    libapr1-dev \
+    libaprutil1-dev \
+    uuid-dev \
+    libcppunit-dev \
+    ccache \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build
+
+# Download ActiveMQ-CPP source
+RUN wget -q https://archive.apache.org/dist/activemq/activemq-cpp/3.9.5/activemq-cpp-library-3.9.5-src.tar.gz && \
+    tar -xzf activemq-cpp-library-3.9.5-src.tar.gz && \
+    mv activemq-cpp-library-3.9.5 activemq-cpp
+
+# Configure and build ActiveMQ-CPP
+# Split into separate RUN commands to avoid memory exhaustion during cross-compilation
+RUN cd activemq-cpp && \
+    ./autogen.sh
+
+# Configure with safer optimization for QEMU stability
+# Using generic armv8-a instead of cortex-a76 to avoid QEMU bugs
+# Still using -O2 but with safer flags
+RUN cd activemq-cpp && \
+    export CFLAGS="-march=armv8-a -O2 -pipe -fno-strict-aliasing" && \
+    export CXXFLAGS="-march=armv8-a -O2 -pipe -fno-strict-aliasing" && \
+    export LDFLAGS="-Wl,--as-needed" && \
+    ./configure \
+        --prefix=/usr \
+        --libdir=/usr/lib \
+        --disable-ssl \
+        --disable-static \
+        --enable-shared \
+        --with-apr=/usr \
+        --disable-dependency-tracking
+
+# Build with parallel jobs but with retry mechanism for QEMU stability
+# Using ccache to speed up retries if needed
+RUN cd activemq-cpp && \
+    export CCACHE_DIR=/build/.ccache && \
+    export CC="ccache gcc" && \
+    export CXX="ccache g++" && \
+    (make -j4 || \
+     (echo "Build failed, retrying with 2 jobs..." && make clean && make -j2) || \
+     (echo "Build failed again, final attempt with single job..." && make clean && make -j1))
+
+# Install to temporary location for packaging
+RUN cd activemq-cpp && \
+    make DESTDIR=/build/pkg install
+
+# Create package structure - install to standard Debian locations
+RUN mkdir -p pkg/DEBIAN && \
+    mkdir -p pkg-dev/DEBIAN && \
+    mkdir -p pkg/usr/lib/aarch64-linux-gnu && \
+    mkdir -p pkg-dev/usr/lib/aarch64-linux-gnu && \
+    mkdir -p pkg-dev/usr/include && \
+    mkdir -p pkg-dev/usr/lib/aarch64-linux-gnu/pkgconfig
+
+# Split runtime and development files
+RUN cp pkg/usr/lib/*.so.* pkg/usr/lib/aarch64-linux-gnu/ 2>/dev/null || true && \
+    cp -r pkg/usr/include/* pkg-dev/usr/include/ && \
+    cp pkg/usr/lib/*.so pkg-dev/usr/lib/aarch64-linux-gnu/ 2>/dev/null || true && \
+    cp pkg/usr/lib/*.a pkg-dev/usr/lib/aarch64-linux-gnu/ 2>/dev/null || true && \
+    cp pkg/usr/lib/pkgconfig/* pkg-dev/usr/lib/aarch64-linux-gnu/pkgconfig/ 2>/dev/null || true && \
+    sed -i 's|/usr/lib|/usr/lib/aarch64-linux-gnu|g' pkg-dev/usr/lib/aarch64-linux-gnu/pkgconfig/*.pc
+
+# Create runtime package control file
+RUN printf '%s\n' \
+        "Package: libactivemq-cpp" \
+        "Version: ${PACKAGE_VERSION}" \
+        "Architecture: ${DEBIAN_ARCH}" \
+        "Maintainer: PiTrac Build System <build@pitrac.org>" \
+        "Section: libs" \
+        "Priority: optional" \
+        "Homepage: https://activemq.apache.org/components/cms/" \
+        "Depends: libapr1, libaprutil1, libssl3" \
+        "Description: ActiveMQ-CPP runtime libraries" \
+        " ActiveMQ-CPP is a C++ client library for Apache ActiveMQ." \
+        " This package contains the runtime libraries." \
+        > pkg/DEBIAN/control
+
+# Create development package control file
+RUN printf '%s\n' \
+        "Package: libactivemq-cpp-dev" \
+        "Version: ${PACKAGE_VERSION}" \
+        "Architecture: ${DEBIAN_ARCH}" \
+        "Maintainer: PiTrac Build System <build@pitrac.org>" \
+        "Section: libdevel" \
+        "Priority: optional" \
+        "Homepage: https://activemq.apache.org/components/cms/" \
+        "Depends: libactivemq-cpp (= ${PACKAGE_VERSION}), libapr1-dev, libaprutil1-dev, libssl-dev" \
+        "Description: ActiveMQ-CPP development files" \
+        " ActiveMQ-CPP is a C++ client library for Apache ActiveMQ." \
+        " This package contains the development files including headers and libraries." \
+        > pkg-dev/DEBIAN/control
+
+# Create pkg-config file
+RUN printf '%s\n' \
+        'prefix=/usr' \
+        'exec_prefix=${prefix}' \
+        'libdir=/usr/lib/aarch64-linux-gnu' \
+        'includedir=${prefix}/include' \
+        '' \
+        'Name: activemq-cpp' \
+        'Description: ActiveMQ-CPP Client Library' \
+        'Version: 3.9.5' \
+        'Libs: -L${libdir} -lactivemq-cpp' \
+        'Libs.private: -lapr-1 -laprutil-1 -lssl -lcrypto -lpthread' \
+        'Cflags: -I${includedir}' \
+        > pkg-dev/usr/lib/aarch64-linux-gnu/pkgconfig/activemq-cpp.pc
+
+# Build the packages
+RUN dpkg-deb --build --root-owner-group pkg libactivemq-cpp_${PACKAGE_VERSION}_${DEBIAN_ARCH}.deb && \
+    dpkg-deb --build --root-owner-group pkg-dev libactivemq-cpp-dev_${PACKAGE_VERSION}_${DEBIAN_ARCH}.deb
+
+# Move to output location
+RUN mkdir -p /output && \
+    mv *.deb /output/ && \
+    ls -la /output/
+
+# Keep container running for extraction
+CMD ["sleep", "infinity"]

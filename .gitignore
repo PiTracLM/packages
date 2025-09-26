@@ -1,0 +1,36 @@
+# Temporary files
+tmp/
+*.tmp
+
+# GPG private keys
+private.key
+private-key.asc
+.gpg-private-key.asc
+*-private-key.asc
+# Keep public keys
+
+# Package files in incoming
+incoming/*.deb
+incoming/*.dsc
+incoming/*.tar.*
+incoming/*.changes
+
+# Backup files
+*.bak
+*~
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Reprepro database
+db/
