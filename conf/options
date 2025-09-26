@@ -1,0 +1,15 @@
+# Reprepro options configuration
+# Verbosity level (0=quiet, 5=very verbose)
+verbose
+
+# Ask before doing dangerous operations
+ask-passphrase
+
+# Skip checking GPG signatures on packages (useful for development)
+# ignore=wrongdistribution
+
+# Allow packages with wrong distributions
+# ignore=wrongdistribution
+
+# Basedir relative to repository root
+basedir .

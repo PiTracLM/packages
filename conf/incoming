@@ -1,0 +1,8 @@
+# Incoming configuration for automatic package processing
+# This allows automatic processing of packages uploaded to specific directories
+
+Name: default
+IncomingDir: incoming
+TempDir: tmp
+Allow: bookworm
+Cleanup: on_error on_deny

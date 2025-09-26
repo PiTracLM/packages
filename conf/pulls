@@ -1,0 +1,16 @@
+# Pull configuration for updating from upstream repositories
+# Format: Name: <name>
+# From: <source-repository>
+# Method: <url>
+# Suite: <suite>
+# Components: <components>
+# Architectures: <architectures>
+# FilterList: install <filter-file>
+
+Name: bookworm
+From: bookworm
+Method: http://deb.debian.org/debian/
+Suite: bookworm
+Components: main contrib non-free
+Architectures: arm64
+UDebComponents: main

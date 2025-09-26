@@ -1,0 +1,6 @@
+Archive: stable
+Component: main
+Origin: PiTrac
+Label: PiTrac APT Repository
+Architecture: arm64
+Description: PiTrac Debian 12 (bookworm) package repository

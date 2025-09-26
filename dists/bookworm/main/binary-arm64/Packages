@@ -1,0 +1,113 @@
+Package: libactivemq-cpp
+Version: 3.9.5-1
+Architecture: arm64
+Maintainer: PiTrac Build System <build@pitrac.org>
+Homepage: https://activemq.apache.org/components/cms/
+Depends: libapr1, libaprutil1, libssl3
+Priority: optional
+Section: libs
+Filename: pool/main/liba/libactivemq-cpp/libactivemq-cpp_3.9.5-1_arm64.deb
+Size: 5927244
+SHA256: 52bb25886a697a66f17e2706469f2a75a16d93f16680d4bf012ed939cfa1817e
+SHA1: 6c96eaa5a4820ae785e538c35658493971d2aebc
+MD5sum: 945fdf11c24517d2aaa7b859c511f681
+Description: ActiveMQ-CPP runtime libraries
+ ActiveMQ-CPP is a C++ client library for Apache ActiveMQ.
+ This package contains the runtime libraries.
+
+Package: libactivemq-cpp-dev
+Version: 3.9.5-1
+Architecture: arm64
+Maintainer: PiTrac Build System <build@pitrac.org>
+Homepage: https://activemq.apache.org/components/cms/
+Depends: libactivemq-cpp (= 3.9.5-1), libapr1-dev, libaprutil1-dev, libssl-dev
+Priority: optional
+Section: libdevel
+Filename: pool/main/liba/libactivemq-cpp-dev/libactivemq-cpp-dev_3.9.5-1_arm64.deb
+Size: 3404636
+SHA256: 9894501b6f03a61ce616589bd2fc791d1647a590846af4e3ed89a302f7c00958
+SHA1: 11c497885b6f5a7b86495eae59192e95a8a71b51
+MD5sum: 92be3dc22e91eb318e10b018ddc2ee35
+Description: ActiveMQ-CPP development files
+ ActiveMQ-CPP is a C++ client library for Apache ActiveMQ.
+ This package contains the development files including headers and libraries.
+
+Package: liblgpio1
+Version: 0.2.2-1
+Architecture: arm64
+Maintainer: PiTrac Build System <build@pitrac.org>
+Homepage: http://abyz.me.uk/lg/
+Priority: optional
+Section: libs
+Filename: pool/main/libl/liblgpio1/liblgpio1_0.2.2-1_arm64.deb
+Size: 89196
+SHA256: 209568e29e817ecda394165ac3a32ff12b2a92a74c60a009fd91a56126405b2b
+SHA1: 77b96ef817c6f7acd3cff3d111fb2dc4872a7c97
+MD5sum: e1a361d01571303674733bb94a6c82b7
+Description: GPIO library for Linux
+ A library for handling GPIO operations on Linux systems.
+ This package contains the runtime library.
+
+Package: libmsgpack-cxx-dev
+Version: 6.1.1-1
+Architecture: all
+Maintainer: PiTrac Build System <build@pitrac.org>
+Homepage: https://msgpack.org/
+Depends: libboost-dev
+Priority: optional
+Section: libdevel
+Filename: pool/main/libm/libmsgpack-cxx-dev/libmsgpack-cxx-dev_6.1.1-1_all.deb
+Size: 192592
+SHA256: 2fba81e8b54cb3f6472caaea18e3f80b59c735f4b3cde5ffe8c2e9902fbdceb7
+SHA1: 81c2acb01de91158e99a87a571d977135ce92594
+MD5sum: 9f795551e2763bd35841f8a14f0f8c4e
+Description: MessagePack implementation for C++ - development files
+ MessagePack is an efficient binary serialization format. It lets you exchange
+ data among multiple languages like JSON. But it's faster and smaller.
+ .
+ This package contains the C++ header-only library files.
+
+Package: libopencv-dev
+Version: 4.11.0-1
+Architecture: arm64
+Maintainer: PiTrac Build System <build@pitrac.org>
+Homepage: https://opencv.org/
+Depends: libopencv4.11 (= 4.11.0-1), libgtk-3-dev, libavcodec-dev,
+ libavformat-dev, libswscale-dev, libtbb-dev, libgstreamer1.0-dev,
+ libgstreamer-plugins-base1.0-dev
+Priority: optional
+Section: libdevel
+Filename: pool/main/libo/libopencv-dev/libopencv-dev_4.11.0-1_arm64.deb
+Size: 8590168
+SHA256: 607364a708ca1f821926c3313b31920aafc5dbeacd2717ba628bb953a850404e
+SHA1: dde3b473ef229f8ec8275361b886ae992ea994b4
+MD5sum: 3f76280b94564d55c7879089f0b72349
+Description: OpenCV development files
+ OpenCV (Open Source Computer Vision Library) is a library of programming
+ functions mainly aimed at real-time computer vision.
+ .
+ This package contains the development files including headers and libraries
+ needed to build applications using OpenCV.
+
+Package: libopencv4.11
+Version: 4.11.0-1
+Architecture: arm64
+Maintainer: PiTrac Build System <build@pitrac.org>
+Homepage: https://opencv.org/
+Depends: libgtk-3-0, libavcodec59 | libavcodec58, libavformat59 | libavformat58,
+ libswscale6 | libswscale5, libtbb12, libgstreamer1.0-0,
+ libgstreamer-plugins-base1.0-0, libopenexr-3-1-30 | libopenexr25,
+ libjpeg62-turbo | libjpeg8, libpng16-16, libtiff6 | libtiff5
+Priority: optional
+Section: libs
+Filename: pool/main/libo/libopencv4.11/libopencv4.11_4.11.0-1_arm64.deb
+Size: 7805444
+SHA256: 3b63276325b8bcb3c463ed2b305671176f5cef2c9c3b5cde1c1814c8bb59d51c
+SHA1: 66fddb97b3bad6b601e9e31f2635d418f1a548e1
+MD5sum: 4af80c36ddcfc0053d1ae548ea3b69e6
+Description: OpenCV runtime libraries
+ OpenCV (Open Source Computer Vision Library) is a library of programming
+ functions mainly aimed at real-time computer vision.
+ .
+ This package contains the runtime libraries for OpenCV 4.11.0.
+

@@ -1,0 +1,57 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Origin: PiTrac
+Label: PiTrac APT Repository
+Suite: stable
+Codename: bookworm
+Date: Fri, 26 Sep 2025 13:20:57 UTC
+Architectures: arm64
+Components: main contrib non-free
+Description: PiTrac Debian 12 (bookworm) package repository
+MD5Sum:
+ b953fde734e3fd94c75d342a1f697faa 4458 main/binary-arm64/Packages
+ e537f511e490d86adef35b8c3f4b9a55 1627 main/binary-arm64/Packages.gz
+ 94ce4ffd9f6d42cfefaa9ed0fe4a2c32 156 main/binary-arm64/Release
+ d41d8cd98f00b204e9800998ecf8427e 0 contrib/binary-arm64/Packages
+ 7029066c27ac6f5ef18d660d5741979a 20 contrib/binary-arm64/Packages.gz
+ 898b5e8743bef140b717d7eb02947c18 159 contrib/binary-arm64/Release
+ d41d8cd98f00b204e9800998ecf8427e 0 non-free/binary-arm64/Packages
+ 7029066c27ac6f5ef18d660d5741979a 20 non-free/binary-arm64/Packages.gz
+ 3e2b34d64e29cb757c0d5d067dac6665 160 non-free/binary-arm64/Release
+SHA1:
+ d56f3ce4f77b8cedab08b8538bbcfa60d0ac500e 4458 main/binary-arm64/Packages
+ 49f732b3d4c9bb76d6116345f8a7a7123c6d0994 1627 main/binary-arm64/Packages.gz
+ 869a80533728a239faffc6e76b87e35e5ff0ad6f 156 main/binary-arm64/Release
+ da39a3ee5e6b4b0d3255bfef95601890afd80709 0 contrib/binary-arm64/Packages
+ 46c6643f07aa7f6bfe7118de926b86defc5087c4 20 contrib/binary-arm64/Packages.gz
+ 0656743fc2c7334444830d8eb93c34091cbdccd3 159 contrib/binary-arm64/Release
+ da39a3ee5e6b4b0d3255bfef95601890afd80709 0 non-free/binary-arm64/Packages
+ 46c6643f07aa7f6bfe7118de926b86defc5087c4 20 non-free/binary-arm64/Packages.gz
+ fb43b5fecedd79efa92175014aedd5371bc5c0db 160 non-free/binary-arm64/Release
+SHA256:
+ 02df35ccc0d496e92482e5af807004adfa34f2f6a174764b043a52fced296c2c 4458 main/binary-arm64/Packages
+ f544c96ff7f2aad8f5a040e33f70cf056419ce86108e6bc9983770e682177ca8 1627 main/binary-arm64/Packages.gz
+ 092327736cbe253943ce286033536bc203a2fda15ec0425ced603c4bf60d4ca9 156 main/binary-arm64/Release
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 contrib/binary-arm64/Packages
+ 59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 contrib/binary-arm64/Packages.gz
+ 67c903d6d7913a183517e2fcccfe0ebf3dca624913a75c57fe2472b29e06a8d8 159 contrib/binary-arm64/Release
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 non-free/binary-arm64/Packages
+ 59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 non-free/binary-arm64/Packages.gz
+ a530eb9fc4c4e8bb0dac30961923b407967ea7f8263b80e77037ff649c3b157b 160 non-free/binary-arm64/Release
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEyZYIvEEP6x7Or8pCXnlcBqs6YMwFAmjWkzkACgkQXnlcBqs6
+YMzh9A/9EMheTn8IrDC/6+h8XnebGgq9PINAm+/mvfZPAFUo9ltYwMehMeWybO3R
+xycpm6c6cShpMIWSKNzDUZtkQHE4E83Ic14Z/UbZMrZy+3zppsH2vfK8J3JzHMZt
+wMX/vzAigyR//qh5WZOqRgIf9pw+NuWNTvh41ok5ZzXqG2jr5SjReJNvFeiTg24v
+pu1BBGFrbd62TH2qNofD47yMPwz8N8li7YRYyZLK61g0mSgkxyP3glvaOuXlecp1
+/G7iO5iHglFP3PzRnAwChJQtOYOQo/GLEoQtAT7jfB0If8O8AwoObmEWXGOONMfu
+yDJqLYlWqPvL9u2GM/3RpTAvNz7twOl8NTC3DJJblTR7Kj/FJB7xhpeb6Ns8F/Rk
+pGn9/NVqF3cr0b8v96R1AdaTn5fsL8+/6UMZavhcX+bgeun9qjzsilwBU4uYM12O
+IGQTTXpoBpv/nTMH0qjvPPDF6ss+iczQ3rqVISzQy03Cv3GHaCOM2Q/MmRrGWmCv
+LGYyHuxNfL6tymhwLg5CxRcQo38AWl428vAFh1PZEWU4XuAe4qrpaftAQ1iyyWtQ
+c0SunwJimX7qNao9AoYsL8dHW+ryLqhw662AucSaISu2GWcPr+tktAMU/b0IqtFG
+5u3Z6OOyRe4XTRMu5eIplt6hJsWkpdxtaxt9xGO92q9XffMxuZ0=
+=hk5S
+-----END PGP SIGNATURE-----

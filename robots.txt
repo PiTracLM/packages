@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Allow: /dists/
+Allow: /pool/
+Allow: /*.asc
+
+# APT Repository - Allow indexing of package files
+Allow: /*.deb
+Allow: /Packages*
+Allow: /Release*

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PiTrac APT Repository</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+        }
+        .highlight {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .code {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border: 1px solid #bee5eb;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #34495e;
+            color: white;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PiTrac APT Repository</h1>
+
+        <div class="highlight">
+            <p><strong>Welcome to the PiTrac APT repository!</strong> This repository provides Debian packages optimized for Raspberry Pi 5 (ARM64) systems, including computer vision libraries and the PiTrac application.</p>
+        </div>
+
+        <h2>Available Packages</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Package</th>
+                    <th>Description</th>
+                    <th>Architecture</th>
+                    <th>Category</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>pitrac</strong></td>
+                    <td>Main PiTrac application for computer vision and tracking</td>
+                    <td><span class="badge">arm64</span></td>
+                    <td>main</td>
+                </tr>
+                <tr>
+                    <td><strong>opencv</strong></td>
+                    <td>OpenCV computer vision library (optimized build)</td>
+                    <td><span class="badge">arm64</span></td>
+                    <td>main</td>
+                </tr>
+                <tr>
+                    <td><strong>lgpio</strong></td>
+                    <td>GPIO library for Raspberry Pi</td>
+                    <td><span class="badge">arm64</span></td>
+                    <td>main</td>
+                </tr>
+                <tr>
+                    <td><strong>msgpack</strong></td>
+                    <td>MessagePack serialization library</td>
+                    <td><span class="badge">arm64</span></td>
+                    <td>main</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Quick Installation</h2>
+
+        <div class="info">
+            <p><strong>For Raspberry Pi 5 (Bookworm):</strong> Follow these steps to add the repository and install packages.</p>
+        </div>
+
+        <h3>Step 1: Add Repository</h3>
+        <div class="code">
+# Add the PiTrac repository to your system
+echo 'deb [arch=arm64] https://pitracml.github.io/packages bookworm main' | sudo tee /etc/apt/sources.list.d/pitrac.list
+</div>
+
+        <h3>Step 2: Add GPG Key (Optional but Recommended)</h3>
+        <div class="code">
+# Download and add the repository GPG key for package verification
+wget -qO - https://pitracml.github.io/packages/pitrac-repo.asc | sudo apt-key add -
+</div>
+
+        <h3>Step 3: Update and Install</h3>
+        <div class="code">
+# Update package lists
+sudo apt update
+
+# Install PiTrac and dependencies
+sudo apt install pitrac
+
+# Or install specific packages
+sudo apt install opencv lgpio msgpack
+</div>
+
+        <h2>Manual Package Installation</h2>
+        <p>You can also download and install individual packages manually:</p>
+        <div class="code">
+# Download a specific package
+wget https://pitracml.github.io/packages/pool/main/p/pitrac/pitrac_latest_arm64.deb
+
+# Install manually
+sudo dpkg -i pitrac_latest_arm64.deb
+sudo apt-get install -f  # Fix any missing dependencies
+</div>
+
+        <h2>Repository Structure</h2>
+        <p>This repository follows the standard Debian repository format:</p>
+        <ul>
+            <li><code>dists/bookworm/</code> - Distribution metadata and package indices</li>
+            <li><code>pool/main/</code> - Package files organized by source package name</li>
+            <li><code>InRelease</code>, <code>Release</code> - Repository metadata and signatures</li>
+        </ul>
+
+        <div class="warning">
+            <p><strong>Architecture Support:</strong> This repository currently supports <strong>arm64</strong> architecture only, specifically optimized for Raspberry Pi 5. Packages may not work on other architectures or older Raspberry Pi models.</p>
+        </div>
+
+        <h2>Package Information</h2>
+        <p>To get detailed information about available packages:</p>
+        <div class="code">
+# Search for PiTrac packages
+apt search pitrac
+
+# Show package information
+apt show pitrac
+
+# List all files in a package
+dpkg -L pitrac
+</div>
+
+        <h2>Troubleshooting</h2>
+
+        <h3>Common Issues</h3>
+        <ul>
+            <li><strong>GPG Key Errors:</strong> Make sure you've added the repository GPG key</li>
+            <li><strong>Architecture Mismatch:</strong> Ensure you're running on a 64-bit ARM system (Raspberry Pi 5)</li>
+            <li><strong>Dependency Issues:</strong> Run <code>sudo apt-get install -f</code> to fix broken dependencies</li>
+        </ul>
+
+        <h3>Check Repository Status</h3>
+        <div class="code">
+# Verify repository is accessible
+curl -I https://pitracml.github.io/packages/dists/bookworm/Release
+
+# Check package cache
+apt-cache policy pitrac
+</div>
+
+        <h2>Documentation & Support</h2>
+        <ul>
+            <li><a href="https://github.com/pitracml/packages">📖 Repository Source Code</a></li>
+            <li><a href="https://github.com/pitracml/packages/issues">🐛 Report Issues</a></li>
+            <li><a href="https://github.com/pitracml/packages/releases">📋 Release Notes</a></li>
+        </ul>
+
+        <h2>Build Information</h2>
+        <p>Packages in this repository are automatically built and deployed using GitHub Actions. All packages are:</p>
+        <ul>
+            <li>Built from source with optimizations for ARM64</li>
+            <li>Tested for basic installation and functionality</li>
+            <li>Signed with GPG keys (when available)</li>
+            <li>Updated automatically when source code changes</li>
+        </ul>
+
+        <div class="info">
+            <p><strong>Last Updated:</strong> This repository is continuously updated. Check the <a href="https://github.com/pitracml/packages/actions">build status</a> for the latest information.</p>
+        </div>
+
+        <div class="footer">
+            <p>
+                <strong>PiTrac APT Repository</strong><br>
+                Optimized packages for Raspberry Pi 5 | ARM64 Architecture<br>
+                <small>Generated automatically by GitHub Actions</small>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

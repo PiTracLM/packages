@@ -1,0 +1,9 @@
+Origin: PiTrac
+Label: PiTrac APT Repository
+Suite: stable
+Codename: bookworm
+Architectures: arm64
+Components: main contrib non-free
+Description: PiTrac Debian 12 (bookworm) package repository
+SignWith: yes
+Pull: bookworm
