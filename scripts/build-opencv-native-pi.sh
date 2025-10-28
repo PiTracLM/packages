@@ -87,7 +87,6 @@ install_dependencies() {
         libtiff-dev \
         gfortran \
         openexr \
-        libatlas-base-dev \
         python3-dev \
         python3-numpy \
         libtbb-dev \
@@ -98,6 +97,15 @@ install_dependencies() {
         libglu1-mesa-dev \
         libgl1-mesa-dev \
         ccache
+
+    # Install BLAS library - different packages for different distros
+    if [[ "$DISTRO" == "trixie" ]]; then
+        log_info "Installing OpenBLAS for Trixie..."
+        sudo apt-get install -y libopenblas-dev
+    else
+        log_info "Installing ATLAS for Bookworm..."
+        sudo apt-get install -y libatlas-base-dev
+    fi
 
     # OpenCL dependencies - try to install what's available
     # Different Debian versions have different package names
