@@ -2,11 +2,14 @@
 # This creates a .deb package following the same pattern as other packages in this repo
 # Version: 1.0.0
 
+ARG DEBIAN_DISTRO=bookworm
+
 # Stage 1: Build environment with dependencies
-FROM --platform=linux/arm64 debian:bookworm AS builder
+FROM --platform=linux/arm64 debian:${DEBIAN_DISTRO} AS builder
 
 ARG PACKAGE_VERSION=1.0.0
 ARG DEBIAN_ARCH=arm64
+ARG DEBIAN_DISTRO
 ARG GITHUB_TOKEN
 
 # Install build dependencies matching build.sh requirements
@@ -74,10 +77,11 @@ RUN apt-get update && apt-get install -y \
 
 # Copy and install dependency packages built by this repo
 # These should be built first using make opencv-package, make activemq-package, etc.
-COPY build/debs/${DEBIAN_ARCH}/opencv_*.deb /tmp/
-COPY build/debs/${DEBIAN_ARCH}/activemq-cpp_*.deb /tmp/
-COPY build/debs/${DEBIAN_ARCH}/lgpio_*.deb /tmp/
-COPY build/debs/${DEBIAN_ARCH}/msgpack-cxx_*.deb /tmp/
+COPY build/debs/${DEBIAN_DISTRO}/${DEBIAN_ARCH}/opencv_*.deb /tmp/
+COPY build/debs/${DEBIAN_DISTRO}/${DEBIAN_ARCH}/activemq-cpp_*.deb /tmp/
+COPY build/debs/${DEBIAN_DISTRO}/${DEBIAN_ARCH}/lgpio_*.deb /tmp/
+COPY build/debs/${DEBIAN_DISTRO}/${DEBIAN_ARCH}/msgpack-cxx_*.deb /tmp/
+COPY build/debs/${DEBIAN_DISTRO}/${DEBIAN_ARCH}/libonnxruntime*.deb /tmp/
 
 # Install the dependency packages
 RUN dpkg -i /tmp/*.deb || apt-get install -f -y && \
@@ -129,10 +133,12 @@ RUN if [ ! -f pitrac ]; then \
     fi
 
 # Stage 2: Package creation
-FROM debian:bookworm AS packager
+ARG DEBIAN_DISTRO=bookworm
+FROM debian:${DEBIAN_DISTRO} AS packager
 
 ARG PACKAGE_VERSION=1.0.0
 ARG DEBIAN_ARCH=arm64
+ARG DEBIAN_DISTRO
 
 # Install packaging tools
 RUN apt-get update && apt-get install -y \

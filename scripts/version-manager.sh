@@ -25,6 +25,7 @@ declare -A BASE_VERSIONS=(
     ["lgpio"]="0.2.2"
     ["msgpack"]="6.1.1"
     ["opencv"]="4.11.0"
+    ["onnxruntime"]="1.17.3"
     ["pitrac"]="1.0.0"
 )
 
@@ -46,12 +47,14 @@ save_versions() {
 LGPIO_VERSION="${LGPIO_VERSION}"
 MSGPACK_VERSION="${MSGPACK_VERSION}"
 OPENCV_VERSION="${OPENCV_VERSION}"
+ONNXRUNTIME_VERSION="${ONNXRUNTIME_VERSION}"
 PITRAC_VERSION="${PITRAC_VERSION}"
 
 # Base versions (upstream)
 LGPIO_BASE="${BASE_VERSIONS[lgpio]}"
 MSGPACK_BASE="${BASE_VERSIONS[msgpack]}"
 OPENCV_BASE="${BASE_VERSIONS[opencv]}"
+ONNXRUNTIME_BASE="${BASE_VERSIONS[onnxruntime]}"
 PITRAC_BASE="${BASE_VERSIONS[pitrac]}"
 EOF
 }
@@ -213,7 +216,7 @@ show_versions() {
     echo "Current PiTrac Package Versions:"
     echo "================================"
     echo ""
-    for package in lgpio msgpack opencv pitrac; do
+    for package in lgpio msgpack opencv onnxruntime pitrac; do
         local var_name="${package^^}_VERSION"
         local version="${!var_name}"
         printf "  %-10s %s\n" "$package:" "$version"
@@ -274,7 +277,7 @@ Increment types:
   patch                        Increment patch version (x.y.z-1)
   revision                     Increment revision (x.y.z-r) [default]
 
-Packages: lgpio, msgpack, opencv, pitrac
+Packages: lgpio, msgpack, opencv, onnxruntime, pitrac
 
 Examples:
   ./version-manager.sh show

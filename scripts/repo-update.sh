@@ -67,39 +67,52 @@ get_component() {
 
 add_package_to_repo() {
     local deb_file="$1"
+    local distro="$2"
     local package_name
     local component
 
     package_name=$(dpkg-deb -f "$deb_file" Package)
     component=$(get_component "$package_name")
 
-    log_info "Adding $package_name ($(basename "$deb_file")) to component $component"
+    log_info "Adding $package_name ($(basename "$deb_file")) to $distro/$component"
 
     cd "$REPO_DIR"
 
-    if reprepro list bookworm | grep -q "^bookworm|$component|.*: $package_name "; then
-        log_info "Removing existing version of $package_name"
-        reprepro remove bookworm "$package_name" || true
+    if reprepro list "$distro" | grep -q "^$distro|$component|.*: $package_name "; then
+        log_info "Removing existing version of $package_name from $distro"
+        reprepro remove "$distro" "$package_name" || true
     fi
 
-    if reprepro includedeb bookworm "$deb_file"; then
-        log_success "Added $package_name successfully"
+    if reprepro includedeb "$distro" "$deb_file"; then
+        log_success "Added $package_name to $distro successfully"
     else
-        log_error "Failed to add $package_name"
+        log_error "Failed to add $package_name to $distro"
         return 1
     fi
 }
 
 process_packages_in_order() {
+    local distro="$1"
+    local distro_debs_dir="$DEBS_DIR/$distro/arm64"
+
     local -a package_order=(
         "liblgpio1"
         "liblgpio-dev"
         "libmsgpack-cxx-dev"
+        "libactivemq-cpp"
+        "libactivemq-cpp-dev"
         "libopencv4.11"
         "libopencv-dev"
+        "libonnxruntime1.17.3"
+        "libonnxruntime1.22.1"
         "pitrac"
         "pitrac-dev"
     )
+
+    if [ ! -d "$distro_debs_dir" ]; then
+        log_warn "No packages found for $distro at $distro_debs_dir"
+        return 0
+    fi
 
     local -A available_packages
 
@@ -107,14 +120,14 @@ process_packages_in_order() {
         local package_name
         package_name=$(dpkg-deb -f "$deb_file" Package)
         available_packages["$package_name"]="$deb_file"
-    done < <(find "$DEBS_DIR" -name "*.deb" -type f -print0)
+    done < <(find "$distro_debs_dir" -name "*.deb" -type f -print0)
 
-    log_info "Found ${#available_packages[@]} packages to process"
+    log_info "Found ${#available_packages[@]} packages to process for $distro"
 
     local processed_count=0
     for package in "${package_order[@]}"; do
         if [ -n "${available_packages[$package]:-}" ]; then
-            if add_package_to_repo "${available_packages[$package]}"; then
+            if add_package_to_repo "${available_packages[$package]}" "$distro"; then
                 ((processed_count++))
                 unset available_packages["$package"]
             fi
@@ -122,25 +135,27 @@ process_packages_in_order() {
     done
 
     for package in "${!available_packages[@]}"; do
-        if add_package_to_repo "${available_packages[$package]}"; then
+        if add_package_to_repo "${available_packages[$package]}" "$distro"; then
             ((processed_count++))
         fi
     done
 
-    log_info "Processed $processed_count packages total"
+    log_info "Processed $processed_count packages total for $distro"
 }
 
 update_repository_metadata() {
-    log_info "Updating repository metadata..."
+    log_info "Updating repository metadata for all distributions..."
 
     cd "$REPO_DIR"
 
-    if reprepro export bookworm; then
-        log_success "Repository metadata updated"
-    else
-        log_error "Failed to update repository metadata"
-        return 1
-    fi
+    for distro in bookworm trixie; do
+        if reprepro export "$distro"; then
+            log_success "Repository metadata updated for $distro"
+        else
+            log_error "Failed to update repository metadata for $distro"
+            return 1
+        fi
+    done
 
     if reprepro deleteunreferenced; then
         log_info "Cleaned up unreferenced files"
@@ -155,28 +170,28 @@ generate_statistics() {
 
     cd "$REPO_DIR"
 
-    local main_count
-    local contrib_count
-    local nonfree_count
+    for distro in bookworm trixie; do
+        echo ""
+        echo "$distro (Debian $([ "$distro" = "bookworm" ] && echo "12" || echo "13")):"
+        echo "-------------------"
 
-    main_count=$(reprepro list bookworm | grep "|main|" | wc -l)
-    contrib_count=$(reprepro list bookworm | grep "|contrib|" | wc -l)
-    nonfree_count=$(reprepro list bookworm | grep "|non-free|" | wc -l)
+        local main_count
+        local contrib_count
+        local nonfree_count
 
-    echo "  Main: $main_count packages"
-    echo "  Contrib: $contrib_count packages"
-    echo "  Non-free: $nonfree_count packages"
-    echo ""
+        main_count=$(reprepro list "$distro" | grep "|main|" | wc -l)
+        contrib_count=$(reprepro list "$distro" | grep "|contrib|" | wc -l)
+        nonfree_count=$(reprepro list "$distro" | grep "|non-free|" | wc -l)
 
-    echo "By Architecture:"
-    reprepro list bookworm | cut -d'|' -f4 | sort | uniq -c | while read count arch; do
-        echo "  $arch: $count packages"
-    done
-    echo ""
+        echo "  Main: $main_count packages"
+        echo "  Contrib: $contrib_count packages"
+        echo "  Non-free: $nonfree_count packages"
+        echo ""
 
-    echo "Packages:"
-    reprepro listmatched bookworm '*' | while IFS='|' read dist component arch package rest; do
-        echo "  $package ($arch)"
+        echo "  Packages:"
+        reprepro listmatched "$distro" '*' | while IFS='|' read dist component arch package rest; do
+            echo "    $package ($arch)"
+        done
     done
 }
 
@@ -194,7 +209,7 @@ verify_repository() {
 }
 
 main() {
-    log_info "Updating APT repository"
+    log_info "Updating APT repository for all distributions"
     log_info "Repository: $REPO_DIR"
     log_info "Packages: $DEBS_DIR"
     echo ""
@@ -207,12 +222,18 @@ main() {
         exit 0
     fi
 
-    log_info "Found $deb_count .deb files to process"
+    log_info "Found $deb_count .deb files total to process"
+    echo ""
 
-    if ! process_packages_in_order; then
-        log_error "Failed to process packages"
-        exit 1
-    fi
+    # Process packages for each distribution
+    for distro in bookworm trixie; do
+        log_info "Processing packages for $distro..."
+        if ! process_packages_in_order "$distro"; then
+            log_error "Failed to process packages for $distro"
+            exit 1
+        fi
+        echo ""
+    done
 
     if ! update_repository_metadata; then
         log_error "Failed to update repository metadata"
@@ -228,18 +249,22 @@ main() {
     generate_statistics
 
     echo ""
-    log_info "Repository updated successfully!"
+    log_success "Repository updated successfully for all distributions!"
     echo ""
-    log_info "To use this repository, add it to your APT sources:"
+    log_info "To use this repository on Debian 12 (Bookworm):"
     echo "  echo 'deb [arch=arm64] https://your-domain.com/repo bookworm main' | sudo tee /etc/apt/sources.list.d/pitrac.list"
+    echo ""
+    log_info "To use this repository on Debian 13 (Trixie):"
+    echo "  echo 'deb [arch=arm64] https://your-domain.com/repo trixie main' | sudo tee /etc/apt/sources.list.d/pitrac.list"
 
     if [ -f "$REPO_DIR/public.key" ]; then
         echo ""
-        log_info "Add the GPG key:"
+        log_info "Add the GPG key (same for both distros):"
         echo "  curl -fsSL https://your-domain.com/repo/public.key | sudo gpg --dearmor -o /usr/share/keyrings/pitrac-archive-keyring.gpg"
         echo ""
-        log_info "Update the sources list to use the key:"
-        echo "  echo 'deb [arch=arm64 signed-by=/usr/share/keyrings/pitrac-archive-keyring.gpg] https://your-domain.com/repo bookworm main' | sudo tee /etc/apt/sources.list.d/pitrac.list"
+        log_info "Then update the sources list to use the key (for your distro):"
+        echo "  Bookworm: echo 'deb [arch=arm64 signed-by=/usr/share/keyrings/pitrac-archive-keyring.gpg] https://your-domain.com/repo bookworm main' | sudo tee /etc/apt/sources.list.d/pitrac.list"
+        echo "  Trixie:   echo 'deb [arch=arm64 signed-by=/usr/share/keyrings/pitrac-archive-keyring.gpg] https://your-domain.com/repo trixie main' | sudo tee /etc/apt/sources.list.d/pitrac.list"
     fi
 
     echo ""

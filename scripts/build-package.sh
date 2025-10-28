@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Package builder script for PiTrac packages
-# Usage: ./build-package.sh <package> <arch> <version>
+# Usage: ./build-package.sh <package> <arch> <version> <distro>
 
 set -euo pipefail
 
@@ -20,20 +20,22 @@ log_warn() { echo -e "${YELLOW}[WARN]${NC} $*"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $*" >&2; }
 log_success() { echo -e "${GREEN}[✓]${NC} $*"; }
 
-if [ $# -ne 3 ]; then
-    log_error "Usage: $0 <package> <arch> <version>"
-    log_error "  package: lgpio|msgpack|activemq|opencv|pitrac"
+if [ $# -ne 4 ]; then
+    log_error "Usage: $0 <package> <arch> <version> <distro>"
+    log_error "  package: lgpio|msgpack|activemq|opencv|onnxruntime|pitrac"
     log_error "  arch: arm64"
     log_error "  version: package version (e.g., 1.0.0-1)"
+    log_error "  distro: bookworm|trixie"
     exit 1
 fi
 
 PACKAGE="$1"
 ARCH="$2"
 VERSION="$3"
+DISTRO="$4"
 
 case "$PACKAGE" in
-    lgpio|msgpack|activemq|opencv|pitrac)
+    lgpio|msgpack|activemq|opencv|onnxruntime|pitrac)
         ;;
     *)
         log_error "Unknown package: $PACKAGE"
@@ -50,6 +52,15 @@ case "$ARCH" in
         ;;
 esac
 
+case "$DISTRO" in
+    bookworm|trixie)
+        ;;
+    *)
+        log_error "Unknown distribution: $DISTRO (only bookworm and trixie supported)"
+        exit 1
+        ;;
+esac
+
 case "$ARCH" in
     arm64)
         DOCKER_PLATFORM="linux/arm64"
@@ -62,11 +73,11 @@ case "$ARCH" in
 esac
 
 PACKAGE_DIR="$BUILD_DIR/$PACKAGE"
-OUTPUT_DIR="$DEB_DIR/$ARCH"
+OUTPUT_DIR="$DEB_DIR/$DISTRO/$ARCH"
 DOCKERFILE="$PROJECT_ROOT/docker/Dockerfile.$PACKAGE"
-IMAGE_TAG="pitrac-$PACKAGE:$ARCH"
+IMAGE_TAG="pitrac-$PACKAGE:$DISTRO-$ARCH"
 
-log_info "Building $PACKAGE for $ARCH (version $VERSION)"
+log_info "Building $PACKAGE for $DISTRO/$ARCH (version $VERSION)"
 
 mkdir -p "$OUTPUT_DIR"
 
@@ -94,7 +105,9 @@ if [ "$PACKAGE" = "pitrac" ]; then
 fi
 
 docker build \
+    --progress=plain \
     --platform="$DOCKER_PLATFORM" \
+    --build-arg DEBIAN_DISTRO="$DISTRO" \
     --build-arg DEBIAN_ARCH="$DEBIAN_ARCH" \
     --build-arg PACKAGE_VERSION="$VERSION" \
     $EXTRA_BUILD_ARGS \
@@ -149,9 +162,10 @@ else
     exit 1
 fi
 
-METADATA_FILE="$OUTPUT_DIR/${PACKAGE}_${ARCH}_${VERSION}.metadata"
+METADATA_FILE="$OUTPUT_DIR/${PACKAGE}_${DISTRO}_${ARCH}_${VERSION}.metadata"
 cat > "$METADATA_FILE" << EOF
 package: $PACKAGE
+distribution: $DISTRO
 architecture: $ARCH
 version: $VERSION
 build_date: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -163,4 +177,4 @@ md5sum: $(md5sum "$DEB_FILE" | cut -d' ' -f1)
 EOF
 
 log_success "Build metadata saved: $METADATA_FILE"
-log_success "Package $PACKAGE ($ARCH) built successfully"
+log_success "Package $PACKAGE ($DISTRO/$ARCH) built successfully"

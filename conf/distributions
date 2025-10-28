@@ -4,6 +4,16 @@ Suite: stable
 Codename: bookworm
 Architectures: arm64
 Components: main contrib non-free
-Description: PiTrac Debian 12 (bookworm) package repository
+Description: PiTrac Debian 12 (bookworm) package repository for Raspberry Pi 5
 SignWith: yes
 Pull: bookworm
+
+Origin: PiTrac
+Label: PiTrac APT Repository
+Suite: stable
+Codename: trixie
+Architectures: arm64
+Components: main contrib non-free
+Description: PiTrac Debian 13 (trixie) package repository for Raspberry Pi 5
+SignWith: yes
+Pull: trixie

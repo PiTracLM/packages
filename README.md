@@ -2,11 +2,12 @@
 
 ## What This Is
 
-This repository builds and distributes Debian packages for the PiTrac golf ball tracking system. It creates `.deb` packages specifically for Raspberry Pi 5 (arm64 architecture) and hosts them through an APT repository on GitHub Pages.
+This repository builds and distributes Debian packages for the PiTrac golf ball tracking system. It creates `.deb` packages specifically for Raspberry Pi 5 (arm64 architecture) targeting both Debian 12 (Bookworm) and Debian 13 (Trixie), and hosts them through an APT repository on GitHub Pages.
 
 The build system handles two distinct challenges:
-- Building external dependencies (lgpio, msgpack, opencv) that aren't available in standard repositories with the right versions or configurations
+- Building external dependencies (lgpio, msgpack, opencv, onnxruntime) that aren't available in standard repositories with the right versions or configurations
 - Packaging the PiTrac application itself from its separate source repository
+- Managing distribution-specific variations (Bookworm uses ONNX Runtime 1.17.3, Trixie uses 1.22.1 with Eigen hash fix)
 
 ## Why It Exists
 
@@ -23,23 +24,28 @@ packages/                         # This repository
 ├── docker/                      # Dockerfiles for cross-compilation
 │   ├── Dockerfile.lgpio        # GPIO library builder
 │   ├── Dockerfile.msgpack      # MessagePack C++ builder
+│   ├── Dockerfile.activemq     # ActiveMQ-CPP builder
 │   ├── Dockerfile.opencv       # OpenCV with DNN/ONNX support
 │   └── Dockerfile.pitrac       # Main application builder
 ├── scripts/                     # Build automation
-│   ├── build-package.sh        # Docker build orchestrator
-│   ├── build-*-native-pi.sh   # Native Pi build scripts
+│   ├── build-package.sh        # Docker build orchestrator (with distro param)
+│   ├── build-*-native-pi.sh   # Native Pi build scripts (with distro param)
 │   ├── incremental-build.sh   # Change detection builds
 │   ├── version-manager.sh     # Version and changelog management
 │   ├── repo-init.sh           # Repository initialization
-│   ├── repo-update.sh         # Package inclusion
+│   ├── repo-update.sh         # Package inclusion (multi-distro aware)
 │   └── setup-gpg.sh           # GPG key management
 ├── conf/                        # APT repository configuration
-│   └── distributions           # reprepro configuration
+│   └── distributions           # reprepro configuration (bookworm + trixie)
 ├── build/                       # Build outputs (gitignored)
-│   ├── debs/                   # Built packages by architecture
+│   ├── debs/                   # Built packages by distribution
+│   │   ├── bookworm/arm64/    # Debian 12 packages
+│   │   └── trixie/arm64/      # Debian 13 packages
 │   └── repo/                   # Local APT repository
 ├── dists/                       # APT repository metadata
-├── pool/                        # APT repository packages
+│   ├── bookworm/              # Debian 12 distribution
+│   └── trixie/                # Debian 13 distribution
+├── pool/                        # APT repository packages (shared)
 └── Makefile                     # Primary build interface
 ```
 
@@ -48,10 +54,17 @@ packages/                         # This repository
 The packages must be built in this order due to dependencies:
 
 ```
-lgpio (0.2.2) → msgpack (6.1.1) → opencv (4.11.0) → pitrac
-         ↓              ↓                ↓              ↓
-   GPIO access    Serialization    Computer vision  Application
+lgpio (0.2.2) → msgpack (6.1.1) → activemq (3.9.5) → opencv (4.11.0) → pitrac
+         ↓              ↓                ↓                  ↓              ↓
+   GPIO access    Serialization    Message Queue    Computer vision  Application
+                                                            ↓
+                                                 ONNX Runtime (1.17.3/1.22.1)
+                                                   (independent, version varies by distro)
 ```
+
+**Distribution-Specific Versions:**
+- **Bookworm (Debian 12)**: ONNX Runtime 1.17.3
+- **Trixie (Debian 13)**: ONNX Runtime 1.22.1 (includes Eigen hash fix)
 
 ### Two Build Methods
 
@@ -98,13 +111,17 @@ cd pitrac-packages
 make setup
 make check-docker
 
-# Build all packages (uses Docker/QEMU)
-make build-all
+# Build all packages for both distributions (uses Docker/QEMU)
+make build-all  # Builds for both bookworm and trixie
+
+# Or build for specific distribution
+make build-all-bookworm  # Debian 12 only
+make build-all-trixie    # Debian 13 only
 
 # Initialize APT repository
 make repo-init
 
-# Add packages to repository
+# Add packages to repository (processes both distros)
 make repo-update
 ```
 
@@ -113,11 +130,17 @@ make repo-update
 #### Docker Builds (Cross-Platform)
 
 ```bash
-# Build specific package
-make build-lgpio        # GPIO library
-make build-msgpack      # Serialization library
-make build-opencv       # Computer vision (4+ hours with QEMU)
-make build-pitrac       # Main application
+# Build specific package for both distributions
+make build-lgpio        # GPIO library (bookworm + trixie)
+make build-msgpack      # Serialization library (bookworm + trixie)
+make build-activemq     # ActiveMQ-CPP (bookworm + trixie)
+make build-opencv       # Computer vision (4+ hours with QEMU per distro)
+make build-pitrac       # Main application (bookworm + trixie)
+
+# Build for specific distribution only
+make build-lgpio-bookworm     # Debian 12 only
+make build-opencv-trixie      # Debian 13 only
+make build-pitrac-bookworm    # Debian 12 only
 
 # Build with specific source (for PiTrac development)
 make build-pitrac PITRAC_REPO=file:///path/to/local/PiTrac
@@ -126,28 +149,50 @@ make build-pitrac PITRAC_REPO=file:///path/to/local/PiTrac
 make build-pitrac PITRAC_BRANCH=v1.2.3
 ```
 
+**Note:** ONNX Runtime is only built natively on Raspberry Pi hardware due to complexity. See Native Pi Builds section below.
+
 #### Native Pi Builds
 
-When QEMU emulation fails or is too slow, build directly on a Raspberry Pi:
+When QEMU emulation fails or is too slow, build directly on a Raspberry Pi. The native build scripts now support multi-distro builds:
 
 ```bash
 # On a Raspberry Pi 5
 cd pitrac-packages/scripts
 
-# Build OpenCV natively (2-3 hours vs 4+ with QEMU)
-./build-opencv-native-pi.sh
+# Build OpenCV natively for Bookworm (2-3 hours vs 4+ with QEMU)
+./build-opencv-native-pi.sh bookworm
 
-# Build all packages natively
-./build-all-native-pi.sh
+# Build OpenCV for Trixie
+./build-opencv-native-pi.sh trixie
 
-# Copy resulting packages to build machine
-scp *.deb user@buildmachine:~/pitrac-packages/build/debs/arm64/
+# Build ActiveMQ-CPP for specific distro
+./build-activemq-native-pi.sh bookworm
+
+# Build ONNX Runtime (auto-selects version based on distro)
+# Bookworm: 1.17.3, Trixie: 1.22.1
+./build-onnxruntime-xnnpack-fixed.sh 1.17.3 bookworm
+./build-onnxruntime-xnnpack-fixed.sh 1.22.1 trixie
+
+# Build all packages natively for a specific distribution
+./build-all-native-pi.sh -d bookworm all
+./build-all-native-pi.sh -d trixie all
+
+# Build only OpenCV for Trixie with clean build
+./build-all-native-pi.sh -d trixie -c opencv
+
+# Copy resulting packages to build machine (distro-specific paths)
+scp ~/pitrac-packages/bookworm/arm64/*.deb user@buildmachine:~/pitrac-packages/build/debs/bookworm/arm64/
+scp ~/pitrac-packages/trixie/arm64/*.deb user@buildmachine:~/pitrac-packages/build/debs/trixie/arm64/
 ```
 
 The native build scripts detect the Pi model and apply appropriate optimizations:
 - Pi 5: Cortex-A76 optimizations, NEON SIMD
 - Pi 4: Cortex-A72 optimizations
 - Others: Generic ARMv8 optimizations
+
+**ONNX Runtime Version Selection:**
+- Bookworm builds use ONNX Runtime 1.17.3 (stable, known working)
+- Trixie builds use ONNX Runtime 1.22.1 (includes Eigen hash mismatch fix)
 
 ### Incremental Builds
 
@@ -215,36 +260,46 @@ gpg --armor --export-secret-keys YOUR_KEY_ID > private.key
 ### Repository Operations
 
 ```bash
-# Initialize repository structure
+# Initialize repository structure (creates bookworm and trixie)
 make repo-init
 
-# Add built packages to repository
+# Add built packages to repository (processes both distributions)
 make repo-update
 
-# Add individual package manually
-reprepro -Vb . includedeb bookworm build/debs/arm64/package_1.0_arm64.deb
+# Add individual package manually to specific distribution
+reprepro -Vb . includedeb bookworm build/debs/bookworm/arm64/package_1.0_arm64.deb
+reprepro -Vb . includedeb trixie build/debs/trixie/arm64/package_1.0_arm64.deb
 
-# List repository contents
+# List repository contents for each distribution
 make repo-list
-reprepro list bookworm
+reprepro list bookworm  # List Debian 12 packages
+reprepro list trixie    # List Debian 13 packages
 
-# Remove package
+# Remove package from specific distribution
 reprepro remove bookworm package-name
+reprepro remove trixie package-name
 
-# Check repository integrity
+# Check repository integrity (checks all distributions)
 reprepro check
 
-# Clean unreferenced files
+# Clean unreferenced files (cleans across all distributions)
 reprepro deleteunreferenced
 ```
 
 ### Repository Structure
 
-The APT repository follows standard Debian layout:
+The APT repository follows standard Debian layout with multi-distribution support:
 
 ```
 dists/
-└── bookworm/                    # Debian 12 codename
+├── bookworm/                    # Debian 12 (Bookworm) codename
+│   ├── Release                  # Repository metadata
+│   ├── Release.gpg              # Signature
+│   └── main/                    # Component
+│       └── binary-arm64/        # Architecture
+│           ├── Packages         # Package index
+│           └── Packages.gz      # Compressed index
+└── trixie/                      # Debian 13 (Trixie) codename
     ├── Release                  # Repository metadata
     ├── Release.gpg              # Signature
     └── main/                    # Component
@@ -253,11 +308,13 @@ dists/
             └── Packages.gz      # Compressed index
 
 pool/
-└── main/                        # Component
+└── main/                        # Component (shared between distributions)
     └── [a-z]/                   # First letter of package
         └── package/             # Package name
             └── *.deb            # Package files
 ```
+
+**Note:** Packages in `pool/` are shared between distributions where appropriate. Distribution-specific packages (like ONNX Runtime with different versions) have distinct filenames.
 
 ## Deployment
 
@@ -300,8 +357,9 @@ gh release create v1.0 build/debs/arm64/*.deb
 
 ### Adding the Repository
 
-On Raspberry Pi systems:
+On Raspberry Pi systems, choose the repository matching your Debian version:
 
+**For Debian 12 (Bookworm):**
 ```bash
 # Add repository to APT sources
 echo "deb [arch=arm64 signed-by=/usr/share/keyrings/pitrac.gpg] \
@@ -316,20 +374,50 @@ curl -fsSL https://YOUR_USERNAME.github.io/pitrac-packages/pitrac-repo.asc | \
 sudo apt update
 ```
 
+**For Debian 13 (Trixie):**
+```bash
+# Add repository to APT sources
+echo "deb [arch=arm64 signed-by=/usr/share/keyrings/pitrac.gpg] \
+  https://YOUR_USERNAME.github.io/pitrac-packages trixie main" | \
+  sudo tee /etc/apt/sources.list.d/pitrac.list
+
+# Add repository signing key
+curl -fsSL https://YOUR_USERNAME.github.io/pitrac-packages/pitrac-repo.asc | \
+  sudo gpg --dearmor -o /usr/share/keyrings/pitrac.gpg
+
+# Update package index
+sudo apt update
+```
+
+**Check your Debian version:**
+```bash
+cat /etc/debian_version  # Shows 12.x for Bookworm, 13.x for Trixie
+lsb_release -cs          # Shows codename: bookworm or trixie
+```
+
 ### Installing Packages
 
 ```bash
-# Install everything
+# Install everything (automatically gets correct versions for your distro)
 sudo apt install pitrac
 
-# Install specific components
-sudo apt install liblgpio1 liblgpio-dev     # GPIO library
-sudo apt install libmsgpack-cxx-dev         # MessagePack headers
-sudo apt install libopencv4.11              # OpenCV runtime
-sudo apt install libopencv-dev              # OpenCV development
+# Install specific components (same commands for both distros)
+sudo apt install liblgpio1 liblgpio-dev          # GPIO library
+sudo apt install libmsgpack-cxx-dev              # MessagePack headers
+sudo apt install libactivemq-cpp libactivemq-cpp-dev  # ActiveMQ-CPP
+sudo apt install libopencv4.11                   # OpenCV runtime
+sudo apt install libopencv-dev                   # OpenCV development
+
+# ONNX Runtime (version depends on your distribution)
+# Bookworm: libonnxruntime1.17.3
+# Trixie: libonnxruntime1.22.1
+sudo apt install libonnxruntime1.17.3   # If on Bookworm
+sudo apt install libonnxruntime1.22.1   # If on Trixie
 
 # The pitrac package pulls in all dependencies automatically
 ```
+
+**Note:** The APT repository automatically provides the correct package versions for your distribution. Bookworm users get ONNX Runtime 1.17.3, Trixie users get 1.22.1 with the Eigen hash fix.
 
 ### Version Pinning
 
@@ -431,8 +519,19 @@ Computer vision optimized for PiTrac:
 - ONNX runtime support
 - Video I/O with V4L2 and GStreamer
 - Removed: Python bindings, Java, unnecessary modules
-- Build time: 2-3 hours native, 4+ hours with QEMU
+- Build time: 2-3 hours native per distro, 4+ hours with QEMU per distro
 - Packages: `libopencv4.11` (runtime), `libopencv-dev` (development)
+- Same version across both Bookworm and Trixie
+
+### onnxruntime (1.17.3 / 1.22.1)
+
+High-performance ML inference with XNNPACK:
+- **Bookworm**: ONNX Runtime 1.17.3 (stable, tested)
+- **Trixie**: ONNX Runtime 1.22.1 (includes Eigen dependency hash fix)
+- XNNPACK execution provider for 2-4x speedup on Pi 5
+- Built natively only (too complex for QEMU cross-compilation)
+- Build time: 60-90 minutes on Pi 5
+- Packages: `libonnxruntime1.17.3` or `libonnxruntime1.22.1`
 
 ### pitrac (date-based)
 
@@ -450,14 +549,48 @@ Main application package:
 
 **build-package.sh**
 ```bash
-./scripts/build-package.sh <package> <arch> <version>
-# Example: ./scripts/build-package.sh opencv arm64 4.11.0-1
+./scripts/build-package.sh <package> <arch> <version> <distro>
+# Examples:
+#   ./scripts/build-package.sh opencv arm64 4.11.0-1 bookworm
+#   ./scripts/build-package.sh pitrac arm64 2024.01.15-1 trixie
 ```
 
 **build-all-native-pi.sh**
 ```bash
 # Run on Raspberry Pi for native builds
-./scripts/build-all-native-pi.sh [--skip-deps]
+./scripts/build-all-native-pi.sh [OPTIONS] [PACKAGES]
+# Options:
+#   -d, --distro <distro>    Target distribution (bookworm or trixie)
+#   -o, --output <dir>       Base output directory
+#   -c, --clean              Clean before building
+# Examples:
+#   ./scripts/build-all-native-pi.sh -d bookworm all
+#   ./scripts/build-all-native-pi.sh -d trixie opencv
+#   ./scripts/build-all-native-pi.sh -d trixie -c onnxruntime
+```
+
+**build-opencv-native-pi.sh**
+```bash
+./scripts/build-opencv-native-pi.sh [distro]
+# Examples:
+#   ./scripts/build-opencv-native-pi.sh bookworm
+#   ./scripts/build-opencv-native-pi.sh trixie
+```
+
+**build-activemq-native-pi.sh**
+```bash
+./scripts/build-activemq-native-pi.sh [distro]
+# Examples:
+#   ./scripts/build-activemq-native-pi.sh bookworm
+#   ./scripts/build-activemq-native-pi.sh trixie
+```
+
+**build-onnxruntime-xnnpack-fixed.sh**
+```bash
+./scripts/build-onnxruntime-xnnpack-fixed.sh [version] [distro]
+# Examples:
+#   ./scripts/build-onnxruntime-xnnpack-fixed.sh 1.17.3 bookworm
+#   ./scripts/build-onnxruntime-xnnpack-fixed.sh 1.22.1 trixie
 ```
 
 **incremental-build.sh**
@@ -476,8 +609,13 @@ Main application package:
 
 **repo-update.sh**
 ```bash
-# Add packages to repository
+# Add packages to repository (processes all distributions)
 ./scripts/repo-update.sh <repo_dir> <debs_dir>
+# Example:
+#   ./scripts/repo-update.sh build/repo build/debs
+# Processes:
+#   build/debs/bookworm/arm64/*.deb → bookworm distribution
+#   build/debs/trixie/arm64/*.deb → trixie distribution
 ```
 
 **add-package.sh**

@@ -1,11 +1,13 @@
 # msgpack-cxx Debian Package Builder
 # Builds: libmsgpack-cxx-dev package (header-only library)
+ARG DEBIAN_DISTRO=bookworm
 ARG DEBIAN_ARCH=arm64
-FROM --platform=linux/arm64 debian:bookworm-slim AS arm64-base
+FROM --platform=linux/arm64 debian:${DEBIAN_DISTRO}-slim AS arm64-base
 FROM ${DEBIAN_ARCH}-base
 
 ARG PACKAGE_VERSION=6.1.1-1
 ARG DEBIAN_ARCH
+ARG DEBIAN_DISTRO
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
