@@ -60,9 +60,15 @@ build_activemq() {
 build_onnxruntime() {
     log_info "Building ONNX Runtime for $DISTRO..."
 
-    # Use same version (1.17.3) for both distros
-    local onnx_version="1.17.3"
-    log_info "Using ONNX Runtime ${onnx_version} for $DISTRO"
+    # Use different versions for different distros
+    local onnx_version
+    if [[ "$DISTRO" == "trixie" ]]; then
+        onnx_version="1.22.1"
+        log_info "Using ONNX Runtime ${onnx_version} for Trixie (Eigen hash fix)"
+    else
+        onnx_version="1.17.3"
+        log_info "Using ONNX Runtime ${onnx_version} for Bookworm"
+    fi
 
     if [[ -x "$SCRIPT_DIR/build-onnxruntime-xnnpack-fixed.sh" ]]; then
         OUTPUT_DIR="$BASE_OUTPUT_DIR" "$SCRIPT_DIR/build-onnxruntime-xnnpack-fixed.sh" "$onnx_version" "$DISTRO"
