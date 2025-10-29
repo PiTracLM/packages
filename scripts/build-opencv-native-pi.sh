@@ -296,10 +296,11 @@ Maintainer: PiTrac Build System <build@pitrac.org>
 Section: libs
 Priority: optional
 Homepage: https://opencv.org/
-Depends: libgtk-3-0, libavcodec59 | libavcodec58, libavformat59 | libavformat58,
- libswscale6 | libswscale5, libtbb12, libgstreamer1.0-0,
- libgstreamer-plugins-base1.0-0, libopenexr-3-1-30 | libopenexr25,
- libjpeg62-turbo | libjpeg8, libpng16-16, libtiff6 | libtiff5
+Depends: libgtk-3-0 | libgtk-3-0t64, libavcodec59 | libavcodec60 | libavcodec61,
+ libavformat59 | libavformat60 | libavformat61, libswscale6 | libswscale7 | libswscale8,
+ libtbb12, libgstreamer1.0-0, libgstreamer-plugins-base1.0-0,
+ libopenexr-3-1-30 | libopenexr25, libjpeg62-turbo | libjpeg8,
+ libpng16-16 | libpng16-16t64, libtiff6 | libtiff6t64 | libtiff5
 Description: OpenCV runtime libraries
  OpenCV (Open Source Computer Vision Library) is a library of programming
  functions mainly aimed at real-time computer vision.

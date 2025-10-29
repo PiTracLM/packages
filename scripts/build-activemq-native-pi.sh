@@ -210,7 +210,7 @@ Maintainer: PiTrac Build System <build@pitrac.org>
 Section: libs
 Priority: optional
 Homepage: https://activemq.apache.org/components/cms/
-Depends: libapr1, libaprutil1, libssl3
+Depends: libapr1 | libapr1t64, libaprutil1 | libaprutil1t64, libssl3 | libssl3t64
 Description: ActiveMQ-CPP runtime libraries
  ActiveMQ-CPP is a C++ client library for Apache ActiveMQ.
  This package contains the runtime libraries.
