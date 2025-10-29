@@ -146,13 +146,13 @@
                 </tr>
                 <tr>
                     <td><strong>libonnxruntime1.17.3</strong></td>
-                    <td>ONNX Runtime with XNNPACK (for Bookworm)</td>
+                    <td>ONNX Runtime with XNNPACK (tested, stable version)</td>
                     <td><span class="badge">arm64</span></td>
-                    <td><span class="badge">bookworm</span></td>
+                    <td><span class="badge">bookworm</span> <span class="badge">trixie</span></td>
                 </tr>
                 <tr>
                     <td><strong>libonnxruntime1.22.1</strong></td>
-                    <td>ONNX Runtime with XNNPACK (for Trixie, includes Eigen fix)</td>
+                    <td>ONNX Runtime with XNNPACK (newer version, Trixie only)</td>
                     <td><span class="badge">arm64</span></td>
                     <td><span class="badge">trixie</span></td>
                 </tr>
@@ -206,7 +206,10 @@ sudo apt install pitrac
 
 # Or install specific packages
 sudo apt install libopencv4.11 liblgpio1 libmsgpack-cxx-dev
-sudo apt install libonnxruntime1.22.1  # ONNX Runtime for Trixie (with Eigen fix)
+
+# ONNX Runtime - Choose one:
+sudo apt install libonnxruntime1.17.3  # Tested, stable version
+sudo apt install libonnxruntime1.22.1  # Newer version
 </div>
 
         <h2>Manual Package Installation</h2>
@@ -230,7 +233,7 @@ sudo apt-get install -f  # Fix any missing dependencies
         </ul>
 
         <div class="info">
-            <p><strong>Distribution Differences:</strong> Most packages are identical across distributions, but ONNX Runtime has different versions: 1.17.3 for Bookworm, 1.22.1 for Trixie (includes Eigen hash dependency fix).</p>
+            <p><strong>Distribution Differences:</strong> Most packages are identical across distributions. Bookworm has ONNX Runtime 1.17.3, while Trixie offers both 1.17.3 (tested, stable) and 1.22.1 (newer version). Both packages can coexist, allowing users to choose based on their needs.</p>
         </div>
 
         <div class="warning">
