@@ -100,7 +100,7 @@
         <h1>PiTrac APT Repository</h1>
 
         <div class="highlight">
-            <p><strong>Welcome to the PiTrac APT repository!</strong> This repository provides Debian packages optimized for Raspberry Pi 5 (ARM64) systems, including computer vision libraries and the PiTrac application.</p>
+            <p><strong>Welcome to the PiTrac APT repository!</strong> This repository provides Debian packages optimized for Raspberry Pi 5 (ARM64) systems, including computer vision libraries and the PiTrac application. We support both <strong>Debian 12 (Bookworm)</strong> and <strong>Debian 13 (Trixie)</strong>.</p>
         </div>
 
         <h2>Available Packages</h2>
@@ -110,7 +110,7 @@
                     <th>Package</th>
                     <th>Description</th>
                     <th>Architecture</th>
-                    <th>Category</th>
+                    <th>Distributions</th>
                 </tr>
             </thead>
             <tbody>
@@ -118,54 +118,95 @@
                     <td><strong>pitrac</strong></td>
                     <td>Main PiTrac application for computer vision and tracking</td>
                     <td><span class="badge">arm64</span></td>
-                    <td>main</td>
+                    <td><span class="badge">bookworm</span> <span class="badge">trixie</span></td>
                 </tr>
                 <tr>
-                    <td><strong>opencv</strong></td>
-                    <td>OpenCV computer vision library (optimized build)</td>
+                    <td><strong>libopencv4.11</strong></td>
+                    <td>OpenCV 4.11.0 computer vision library (optimized build with DNN)</td>
                     <td><span class="badge">arm64</span></td>
-                    <td>main</td>
+                    <td><span class="badge">bookworm</span> <span class="badge">trixie</span></td>
                 </tr>
                 <tr>
-                    <td><strong>lgpio</strong></td>
-                    <td>GPIO library for Raspberry Pi</td>
+                    <td><strong>liblgpio1</strong></td>
+                    <td>GPIO library for Raspberry Pi (0.2.2)</td>
                     <td><span class="badge">arm64</span></td>
-                    <td>main</td>
+                    <td><span class="badge">bookworm</span> <span class="badge">trixie</span></td>
                 </tr>
                 <tr>
-                    <td><strong>msgpack</strong></td>
-                    <td>MessagePack serialization library</td>
+                    <td><strong>libmsgpack-cxx-dev</strong></td>
+                    <td>MessagePack C++ serialization library (6.1.1)</td>
                     <td><span class="badge">arm64</span></td>
-                    <td>main</td>
+                    <td><span class="badge">bookworm</span> <span class="badge">trixie</span></td>
+                </tr>
+                <tr>
+                    <td><strong>libactivemq-cpp</strong></td>
+                    <td>ActiveMQ-CPP messaging library (3.9.5)</td>
+                    <td><span class="badge">arm64</span></td>
+                    <td><span class="badge">bookworm</span> <span class="badge">trixie</span></td>
+                </tr>
+                <tr>
+                    <td><strong>libonnxruntime1.17.3</strong></td>
+                    <td>ONNX Runtime with XNNPACK (for Bookworm)</td>
+                    <td><span class="badge">arm64</span></td>
+                    <td><span class="badge">bookworm</span></td>
+                </tr>
+                <tr>
+                    <td><strong>libonnxruntime1.22.1</strong></td>
+                    <td>ONNX Runtime with XNNPACK (for Trixie, includes Eigen fix)</td>
+                    <td><span class="badge">arm64</span></td>
+                    <td><span class="badge">trixie</span></td>
                 </tr>
             </tbody>
         </table>
 
         <h2>Quick Installation</h2>
 
-        <div class="info">
-            <p><strong>For Raspberry Pi 5 (Bookworm):</strong> Follow these steps to add the repository and install packages.</p>
+        <div class="warning">
+            <p><strong>Important:</strong> Choose the correct distribution for your Raspberry Pi. Check your version with: <code>cat /etc/debian_version</code> (12.x = Bookworm, 13.x = Trixie) or <code>lsb_release -cs</code></p>
         </div>
 
-        <h3>Step 1: Add Repository</h3>
+        <h3>For Debian 12 (Bookworm)</h3>
+
+        <h4>Step 1: Add Repository</h4>
         <div class="code">
-echo 'deb [arch=arm64] https://pitraclm.github.io/packages bookworm main' | sudo tee /etc/apt/sources.list.d/pitrac.list
+echo 'deb [arch=arm64 signed-by=/usr/share/keyrings/pitrac.gpg] https://pitraclm.github.io/packages bookworm main' | sudo tee /etc/apt/sources.list.d/pitrac.list
 </div>
 
-        <h3>Step 2: Add GPG Key (Optional but Recommended)</h3>
+        <h4>Step 2: Add GPG Key</h4>
         <div class="code">
-wget -qO - https://pitraclm.github.io/packages/pitrac-repo.asc | sudo apt-key add -
+curl -fsSL https://pitraclm.github.io/packages/pitrac-repo.asc | sudo gpg --dearmor -o /usr/share/keyrings/pitrac.gpg
 </div>
 
-        <h3>Step 3: Update and Install</h3>
+        <h4>Step 3: Update and Install</h4>
         <div class="code">
 sudo apt update
-
 sudo apt install pitrac
 
 # Or install specific packages
+sudo apt install libopencv4.11 liblgpio1 libmsgpack-cxx-dev
+sudo apt install libonnxruntime1.17.3  # ONNX Runtime for Bookworm
+</div>
 
-sudo apt install opencv lgpio msgpack
+        <h3>For Debian 13 (Trixie)</h3>
+
+        <h4>Step 1: Add Repository</h4>
+        <div class="code">
+echo 'deb [arch=arm64 signed-by=/usr/share/keyrings/pitrac.gpg] https://pitraclm.github.io/packages trixie main' | sudo tee /etc/apt/sources.list.d/pitrac.list
+</div>
+
+        <h4>Step 2: Add GPG Key</h4>
+        <div class="code">
+curl -fsSL https://pitraclm.github.io/packages/pitrac-repo.asc | sudo gpg --dearmor -o /usr/share/keyrings/pitrac.gpg
+</div>
+
+        <h4>Step 3: Update and Install</h4>
+        <div class="code">
+sudo apt update
+sudo apt install pitrac
+
+# Or install specific packages
+sudo apt install libopencv4.11 liblgpio1 libmsgpack-cxx-dev
+sudo apt install libonnxruntime1.22.1  # ONNX Runtime for Trixie (with Eigen fix)
 </div>
 
         <h2>Manual Package Installation</h2>
@@ -180,12 +221,17 @@ sudo apt-get install -f  # Fix any missing dependencies
 </div>
 
         <h2>Repository Structure</h2>
-        <p>This repository follows the standard Debian repository format:</p>
+        <p>This repository follows the standard Debian repository format with multi-distribution support:</p>
         <ul>
-            <li><code>dists/bookworm/</code> - Distribution metadata and package indices</li>
-            <li><code>pool/main/</code> - Package files organized by source package name</li>
-            <li><code>InRelease</code>, <code>Release</code> - Repository metadata and signatures</li>
+            <li><code>dists/bookworm/</code> - Debian 12 (Bookworm) metadata and package indices</li>
+            <li><code>dists/trixie/</code> - Debian 13 (Trixie) metadata and package indices</li>
+            <li><code>pool/main/</code> - Package files organized by source package name (shared where appropriate)</li>
+            <li><code>InRelease</code>, <code>Release</code> - Repository metadata and signatures for each distribution</li>
         </ul>
+
+        <div class="info">
+            <p><strong>Distribution Differences:</strong> Most packages are identical across distributions, but ONNX Runtime has different versions: 1.17.3 for Bookworm, 1.22.1 for Trixie (includes Eigen hash dependency fix).</p>
+        </div>
 
         <div class="warning">
             <p><strong>Architecture Support:</strong> This repository currently supports <strong>arm64</strong> architecture only, specifically optimized for Raspberry Pi 5. Packages may not work on other architectures or older Raspberry Pi models.</p>
@@ -215,11 +261,17 @@ dpkg -L pitrac
 
         <h3>Check Repository Status</h3>
         <div class="code">
-# Verify repository is accessible
+# Verify repository is accessible (Bookworm)
 curl -I https://pitraclm.github.io/packages/dists/bookworm/Release
+
+# Verify repository is accessible (Trixie)
+curl -I https://pitraclm.github.io/packages/dists/trixie/Release
 
 # Check package cache
 apt-cache policy pitrac
+
+# Verify you're using the correct distribution
+cat /etc/apt/sources.list.d/pitrac.list
 </div>
 
         <h2>Documentation & Support</h2>
@@ -232,11 +284,16 @@ apt-cache policy pitrac
         <h2>Build Information</h2>
         <p>Packages in this repository are automatically built and deployed using GitHub Actions. All packages are:</p>
         <ul>
-            <li>Built from source with optimizations for ARM64</li>
-            <li>Tested for basic installation and functionality</li>
-            <li>Signed with GPG keys (when available)</li>
+            <li>Built from source with optimizations for ARM64 (Raspberry Pi 5)</li>
+            <li>Built separately for Debian 12 (Bookworm) and Debian 13 (Trixie)</li>
+            <li>Tested for basic installation and functionality on each distribution</li>
+            <li>Signed with GPG keys for security</li>
             <li>Updated automatically when source code changes</li>
         </ul>
+
+        <div class="info">
+            <p><strong>Note on Compatibility:</strong> Due to binary ABI changes between Debian versions (especially the 64-bit time_t transition in Trixie), packages must be rebuilt for each distribution. Always use the packages matching your Debian version.</p>
+        </div>
 
         <div class="info">
             <p><strong>Last Updated:</strong> This repository is continuously updated. Check the <a href="https://github.com/pitraclm/packages/actions">build status</a> for the latest information.</p>
@@ -246,6 +303,7 @@ apt-cache policy pitrac
             <p>
                 <strong>PiTrac APT Repository</strong><br>
                 Optimized packages for Raspberry Pi 5 | ARM64 Architecture<br>
+                Supporting Debian 12 (Bookworm) and Debian 13 (Trixie)<br>
                 <small>Generated automatically by GitHub Actions</small>
             </p>
         </div>

@@ -1,0 +1,13 @@
+# Override file for main component
+# Format: package priority section [maintainer]
+
+# PiTrac packages
+pitrac optional misc
+pitrac-dev optional libdevel
+
+# Library packages
+liblgpio1 optional libs
+liblgpio-dev optional libdevel
+libmsgpack-cxx-dev optional libdevel
+libopencv4.11 optional libs
+libopencv-dev optional libdevel

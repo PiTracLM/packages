@@ -1,0 +1,10 @@
+package: lgpio
+distribution: trixie
+architecture: arm64
+version: 0.2.2-1
+build_date: 2025-10-29T14:38:46Z
+build_host: Gallopo-AMD
+docker_platform: linux/arm64
+package_file: liblgpio1_0.2.2-1_arm64.deb
+package_size: 42792
+md5sum: 3914241ac17be17e45544ad9327b7617

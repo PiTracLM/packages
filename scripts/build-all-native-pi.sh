@@ -1,6 +1,9 @@
 #!/bin/bash
 # Master script to build all PiTrac dependency packages natively on Raspberry Pi
 # This avoids QEMU issues by building directly on ARM64 hardware
+# Usage: ./build-all-native-pi.sh [OPTIONS] [PACKAGES]
+#   -d, --distro: bookworm or trixie (default: bookworm)
+#   See --help for full options
 
 set -euo pipefail
 
@@ -17,7 +20,8 @@ log_error() { echo -e "${RED}[ERROR]${NC} $*" >&2; }
 log_success() { echo -e "${GREEN}[✓]${NC} $*"; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-OUTPUT_DIR="${OUTPUT_DIR:-$HOME/pitrac-packages}"
+BASE_OUTPUT_DIR="${OUTPUT_DIR:-$HOME/pitrac-packages}"
+DISTRO="bookworm"  # Default distro
 
 # Check if running on Raspberry Pi
 check_raspberry_pi() {
@@ -32,9 +36,9 @@ check_raspberry_pi() {
 
 # Build OpenCV packages
 build_opencv() {
-    log_info "Building OpenCV packages..."
+    log_info "Building OpenCV packages for $DISTRO..."
     if [[ -x "$SCRIPT_DIR/build-opencv-native-pi.sh" ]]; then
-        OUTPUT_DIR="$OUTPUT_DIR" "$SCRIPT_DIR/build-opencv-native-pi.sh"
+        OUTPUT_DIR="$BASE_OUTPUT_DIR" "$SCRIPT_DIR/build-opencv-native-pi.sh" "$DISTRO"
     else
         log_error "OpenCV build script not found"
         return 1
@@ -43,11 +47,33 @@ build_opencv() {
 
 # Build ActiveMQ-CPP packages
 build_activemq() {
-    log_info "Building ActiveMQ-CPP packages..."
+    log_info "Building ActiveMQ-CPP packages for $DISTRO..."
     if [[ -x "$SCRIPT_DIR/build-activemq-native-pi.sh" ]]; then
-        OUTPUT_DIR="$OUTPUT_DIR" "$SCRIPT_DIR/build-activemq-native-pi.sh"
+        OUTPUT_DIR="$BASE_OUTPUT_DIR" "$SCRIPT_DIR/build-activemq-native-pi.sh" "$DISTRO"
     else
         log_error "ActiveMQ build script not found"
+        return 1
+    fi
+}
+
+# Build ONNX Runtime with XNNPACK
+build_onnxruntime() {
+    log_info "Building ONNX Runtime for $DISTRO..."
+
+    # Use different versions based on distro
+    local onnx_version
+    if [[ "$DISTRO" == "trixie" ]]; then
+        onnx_version="1.22.1"
+        log_info "Using ONNX Runtime ${onnx_version} for Trixie (Eigen hash fix)"
+    else
+        onnx_version="1.17.3"
+        log_info "Using ONNX Runtime ${onnx_version} for Bookworm"
+    fi
+
+    if [[ -x "$SCRIPT_DIR/build-onnxruntime-xnnpack-fixed.sh" ]]; then
+        OUTPUT_DIR="$BASE_OUTPUT_DIR" "$SCRIPT_DIR/build-onnxruntime-xnnpack-fixed.sh" "$onnx_version" "$DISTRO"
+    else
+        log_error "ONNX Runtime build script not found"
         return 1
     fi
 }
@@ -82,12 +108,13 @@ build_msgpack() {
 organize_packages() {
     log_info "Organizing packages for repository..."
 
-    REPO_DIR="$OUTPUT_DIR/repo"
+    DISTRO_OUTPUT_DIR="$BASE_OUTPUT_DIR/$DISTRO/arm64"
+    REPO_DIR="$BASE_OUTPUT_DIR/$DISTRO/repo"
     mkdir -p "$REPO_DIR/pool/main"
 
     # Copy all .deb files to pool
-    if ls "$OUTPUT_DIR"/*.deb 1>/dev/null 2>&1; then
-        cp "$OUTPUT_DIR"/*.deb "$REPO_DIR/pool/main/"
+    if ls "$DISTRO_OUTPUT_DIR"/*.deb 1>/dev/null 2>&1; then
+        cp "$DISTRO_OUTPUT_DIR"/*.deb "$REPO_DIR/pool/main/"
 
         log_success "Packages copied to repository structure:"
         ls -la "$REPO_DIR/pool/main/"*.deb
@@ -103,21 +130,24 @@ show_usage() {
     echo "Build PiTrac dependency packages natively on Raspberry Pi"
     echo ""
     echo "OPTIONS:"
-    echo "  -h, --help      Show this help message"
-    echo "  -o, --output    Output directory (default: ~/pitrac-packages)"
-    echo "  -c, --clean     Clean output directory before building"
+    echo "  -h, --help        Show this help message"
+    echo "  -d, --distro      Target distribution: bookworm or trixie (default: bookworm)"
+    echo "  -o, --output      Base output directory (default: ~/pitrac-packages)"
+    echo "  -c, --clean       Clean output directory before building"
     echo ""
     echo "PACKAGES:"
-    echo "  all             Build all packages (default)"
-    echo "  opencv          Build only OpenCV packages"
-    echo "  activemq        Build only ActiveMQ-CPP packages"
-    echo "  lgpio           Build only lgpio package"
-    echo "  msgpack         Build only msgpack package"
+    echo "  all               Build all packages (default)"
+    echo "  opencv            Build only OpenCV packages"
+    echo "  activemq          Build only ActiveMQ-CPP packages"
+    echo "  onnxruntime       Build only ONNX Runtime (1.17.3 for bookworm, 1.22.1 for trixie)"
+    echo "  lgpio             Build only lgpio package"
+    echo "  msgpack           Build only msgpack package"
     echo ""
     echo "Examples:"
-    echo "  $0              # Build all packages"
-    echo "  $0 opencv       # Build only OpenCV"
-    echo "  $0 -c all       # Clean build all packages"
+    echo "  $0                           # Build all packages for bookworm"
+    echo "  $0 -d trixie all             # Build all packages for trixie"
+    echo "  $0 -d bookworm opencv        # Build only OpenCV for bookworm"
+    echo "  $0 -d trixie -c onnxruntime  # Clean build ONNX Runtime for trixie"
 }
 
 # Main execution
@@ -138,8 +168,12 @@ main() {
                 show_usage
                 exit 0
                 ;;
+            -d|--distro)
+                DISTRO="$2"
+                shift 2
+                ;;
             -o|--output)
-                OUTPUT_DIR="$2"
+                BASE_OUTPUT_DIR="$2"
                 shift 2
                 ;;
             -c|--clean)
@@ -153,18 +187,30 @@ main() {
         esac
     done
 
+    # Validate distro
+    case "$DISTRO" in
+        bookworm|trixie)
+            log_info "Target distribution: $DISTRO"
+            ;;
+        *)
+            log_error "Unknown distribution: $DISTRO (only bookworm and trixie supported)"
+            exit 1
+            ;;
+    esac
+
     # Default to all packages
     if [[ -z "$PACKAGES" ]]; then
         PACKAGES="all"
     fi
 
     # Create output directory
-    mkdir -p "$OUTPUT_DIR"
+    DISTRO_OUTPUT_DIR="$BASE_OUTPUT_DIR/$DISTRO/arm64"
+    mkdir -p "$DISTRO_OUTPUT_DIR"
 
     # Clean if requested
     if [[ "$CLEAN_BUILD" == "true" ]]; then
-        log_warn "Cleaning output directory..."
-        rm -f "$OUTPUT_DIR"/*.deb
+        log_warn "Cleaning output directory for $DISTRO..."
+        rm -f "$DISTRO_OUTPUT_DIR"/*.deb
     fi
 
     # Build requested packages
@@ -173,6 +219,7 @@ main() {
             all)
                 build_opencv
                 build_activemq
+                build_onnxruntime
                 build_lgpio
                 build_msgpack
                 ;;
@@ -181,6 +228,9 @@ main() {
                 ;;
             activemq)
                 build_activemq
+                ;;
+            onnxruntime)
+                build_onnxruntime
                 ;;
             lgpio)
                 build_lgpio
@@ -200,13 +250,15 @@ main() {
     organize_packages
 
     echo ""
-    log_success "Native build complete!"
-    log_info "Packages are in: $OUTPUT_DIR"
+    log_success "Native build complete for $DISTRO!"
+    log_info "Packages are in: $DISTRO_OUTPUT_DIR"
     echo ""
     log_info "To use these packages in the main build system:"
     log_info "1. Copy the .deb files to your development machine"
-    log_info "2. Place them in: pitrac/packages/build/debs/arm64/"
-    log_info "3. Run the main PiTrac build: make pitrac-package"
+    log_info "2. Place them in: pitrac/packages/build/debs/$DISTRO/arm64/"
+    log_info "3. Run the main PiTrac build:"
+    log_info "   - For bookworm: make build-all-bookworm"
+    log_info "   - For trixie:   make build-all-trixie"
 }
 
 # Run main

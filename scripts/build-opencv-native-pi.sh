@@ -2,6 +2,8 @@
 # Native Raspberry Pi 5 build script for OpenCV 4.11.0 deb packages
 # This script builds OpenCV directly on Pi hardware, avoiding QEMU issues
 # Produces identical packages to the Docker build
+# Usage: ./build-opencv-native-pi.sh [distro]
+#   distro: bookworm or trixie (default: bookworm)
 
 set -euo pipefail
 
@@ -9,6 +11,7 @@ set -euo pipefail
 OPENCV_VERSION="4.11.0"
 PACKAGE_VERSION="4.11.0-1"
 DEBIAN_ARCH="arm64"
+DISTRO="${1:-bookworm}"
 
 # Color output
 RED='\033[0;31m'
@@ -21,6 +24,17 @@ log_info() { echo -e "${BLUE}[INFO]${NC} $*"; }
 log_warn() { echo -e "${YELLOW}[WARN]${NC} $*"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $*" >&2; }
 log_success() { echo -e "${GREEN}[✓]${NC} $*"; }
+
+# Validate distro parameter
+case "$DISTRO" in
+    bookworm|trixie)
+        log_info "Building for Debian $DISTRO"
+        ;;
+    *)
+        log_error "Unknown distribution: $DISTRO (only bookworm and trixie supported)"
+        exit 1
+        ;;
+esac
 
 # Check if running on Raspberry Pi
 check_raspberry_pi() {
@@ -73,7 +87,6 @@ install_dependencies() {
         libtiff-dev \
         gfortran \
         openexr \
-        libatlas-base-dev \
         python3-dev \
         python3-numpy \
         libtbb-dev \
@@ -84,6 +97,15 @@ install_dependencies() {
         libglu1-mesa-dev \
         libgl1-mesa-dev \
         ccache
+
+    # Install BLAS library - different packages for different distros
+    if [[ "$DISTRO" == "trixie" ]]; then
+        log_info "Installing OpenBLAS for Trixie..."
+        sudo apt-get install -y libopenblas-dev
+    else
+        log_info "Installing ATLAS for Bookworm..."
+        sudo apt-get install -y libatlas-base-dev
+    fi
 
     # OpenCL dependencies - try to install what's available
     # Different Debian versions have different package names
@@ -310,8 +332,9 @@ EOF
     dpkg-deb --build --root-owner-group "$PKG_DIR"
     dpkg-deb --build --root-owner-group "$PKG_DEV_DIR"
 
-    # Move packages to output directory
-    OUTPUT_DIR="${OUTPUT_DIR:-$HOME/pitrac-packages}"
+    # Move packages to output directory (distro-specific)
+    BASE_OUTPUT_DIR="${OUTPUT_DIR:-$HOME/pitrac-packages}"
+    OUTPUT_DIR="$BASE_OUTPUT_DIR/$DISTRO/$DEBIAN_ARCH"
     mkdir -p "$OUTPUT_DIR"
     mv "$BUILD_DIR"/*.deb "$OUTPUT_DIR/"
 
@@ -332,6 +355,7 @@ cleanup() {
 main() {
     log_info "Native Raspberry Pi OpenCV Package Builder"
     log_info "Version: ${PACKAGE_VERSION}"
+    log_info "Target distribution: $DISTRO"
 
     # Set trap for cleanup
     trap cleanup EXIT

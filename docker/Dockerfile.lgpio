@@ -1,11 +1,13 @@
 # lgpio Debian Package Builder
 # Builds: liblgpio1 and liblgpio-dev packages
+ARG DEBIAN_DISTRO=bookworm
 ARG DEBIAN_ARCH=arm64
-FROM --platform=linux/arm64 debian:bookworm-slim AS arm64-base
+FROM --platform=linux/arm64 debian:${DEBIAN_DISTRO}-slim AS arm64-base
 FROM ${DEBIAN_ARCH}-base
 
 ARG PACKAGE_VERSION=0.2.2-1
 ARG DEBIAN_ARCH
+ARG DEBIAN_DISTRO
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
@@ -33,17 +35,26 @@ RUN cd lg && \
     make -j$(nproc) && \
     make prefix=/build/lg/debian/tmp/usr install
 
-# Create package directory structure
+# Create package directory structure for runtime library (liblgpio1)
 RUN cd lg && \
-    mkdir -p debian/tmp/DEBIAN && \
-    mkdir -p debian/tmp/usr/lib/aarch64-linux-gnu && \
-    mkdir -p debian/tmp/usr/include && \
-    mkdir -p debian/tmp/usr/lib/aarch64-linux-gnu/pkgconfig
+    mkdir -p debian/liblgpio1/DEBIAN && \
+    mkdir -p debian/liblgpio1/usr/lib/aarch64-linux-gnu
 
-# Install libraries and headers - move libs to arch-specific directory
+# Create package directory structure for development files (liblgpio-dev)
 RUN cd lg && \
-    mv debian/tmp/usr/lib/*.so* debian/tmp/usr/lib/aarch64-linux-gnu/ || true && \
-    cp -a debian/tmp/usr/include/* debian/tmp/usr/include/ || true && \
+    mkdir -p debian/liblgpio-dev/DEBIAN && \
+    mkdir -p debian/liblgpio-dev/usr/include && \
+    mkdir -p debian/liblgpio-dev/usr/lib/aarch64-linux-gnu/pkgconfig
+
+# Install runtime libraries to liblgpio1 package
+RUN cd lg && \
+    mv debian/tmp/usr/lib/*.so.* debian/liblgpio1/usr/lib/aarch64-linux-gnu/ || true
+
+# Install development files to liblgpio-dev package
+RUN cd lg && \
+    cp -a debian/tmp/usr/include/* debian/liblgpio-dev/usr/include/ && \
+    mv debian/tmp/usr/lib/*.so debian/liblgpio-dev/usr/lib/aarch64-linux-gnu/ || true && \
+    mv debian/tmp/usr/lib/*.a debian/liblgpio-dev/usr/lib/aarch64-linux-gnu/ || true && \
     # Create pkg-config file
     printf '%s\n' \
         'prefix=/usr' \
@@ -56,10 +67,10 @@ RUN cd lg && \
         'Version: 0.2.2' \
         'Libs: -L${libdir} -llgpio' \
         'Cflags: -I${includedir}' \
-        > debian/tmp/usr/lib/aarch64-linux-gnu/pkgconfig/lgpio.pc
+        > debian/liblgpio-dev/usr/lib/aarch64-linux-gnu/pkgconfig/lgpio.pc
 
-# Create control file
-RUN cd lg/debian/tmp/DEBIAN && \
+# Create control file for runtime library
+RUN cd lg/debian/liblgpio1/DEBIAN && \
     printf '%s\n' \
         "Package: liblgpio1" \
         "Version: ${PACKAGE_VERSION}" \
@@ -68,14 +79,37 @@ RUN cd lg/debian/tmp/DEBIAN && \
         "Section: libs" \
         "Priority: optional" \
         "Homepage: http://abyz.me.uk/lg/" \
-        "Description: GPIO library for Linux" \
+        "Description: GPIO library for Linux - runtime" \
         " A library for handling GPIO operations on Linux systems." \
         " This package contains the runtime library." \
+        "Replaces: liblgpio1 (<= 0.2.2-1~rpt99)" \
+        "Conflicts: liblgpio1 (<= 0.2.2-1~rpt99)" \
+        "Provides: liblgpio1" \
         > control
 
-# Build the package
+# Create control file for development package
+RUN cd lg/debian/liblgpio-dev/DEBIAN && \
+    printf '%s\n' \
+        "Package: liblgpio-dev" \
+        "Version: ${PACKAGE_VERSION}" \
+        "Architecture: ${DEBIAN_ARCH}" \
+        "Maintainer: PiTrac Build System <build@pitrac.org>" \
+        "Section: libdevel" \
+        "Priority: optional" \
+        "Depends: liblgpio1 (= ${PACKAGE_VERSION})" \
+        "Homepage: http://abyz.me.uk/lg/" \
+        "Description: GPIO library for Linux - development files" \
+        " A library for handling GPIO operations on Linux systems." \
+        " This package contains the development files (headers and static libraries)." \
+        "Replaces: liblgpio-dev (<= 0.2.2-1~rpt99)" \
+        "Conflicts: liblgpio-dev (<= 0.2.2-1~rpt99)" \
+        "Provides: liblgpio-dev" \
+        > control
+
+# Build both packages
 RUN cd lg && \
-    dpkg-deb --build --root-owner-group debian/tmp liblgpio1_${PACKAGE_VERSION}_${DEBIAN_ARCH}.deb
+    dpkg-deb --build --root-owner-group debian/liblgpio1 liblgpio1_${PACKAGE_VERSION}_${DEBIAN_ARCH}.deb && \
+    dpkg-deb --build --root-owner-group debian/liblgpio-dev liblgpio-dev_${PACKAGE_VERSION}_${DEBIAN_ARCH}.deb
 
 # Move to output location
 RUN mkdir -p /output && \

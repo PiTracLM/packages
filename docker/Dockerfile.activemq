@@ -3,13 +3,15 @@
 
 # USE the build-activemq-native-pi.sh for building. This is not working at this time because of QEMU issues.
 
+ARG DEBIAN_DISTRO=bookworm
 ARG DEBIAN_ARCH=arm64
-FROM --platform=linux/arm64 debian:bookworm-slim AS arm64-base
+FROM --platform=linux/arm64 debian:${DEBIAN_DISTRO}-slim AS arm64-base
 
 FROM ${DEBIAN_ARCH}-base
 
 ARG PACKAGE_VERSION=3.9.5-1
 ARG DEBIAN_ARCH
+ARG DEBIAN_DISTRO
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \

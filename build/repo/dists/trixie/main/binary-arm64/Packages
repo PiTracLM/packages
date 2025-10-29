@@ -1,0 +1,177 @@
+Package: libactivemq-cpp
+Version: 3.9.5-1~trixie1
+Architecture: arm64
+Maintainer: PiTrac Build System <build@pitrac.org>
+Homepage: https://activemq.apache.org/components/cms/
+Depends: libapr1, libaprutil1, libssl3
+Priority: optional
+Section: libs
+Filename: pool/main/liba/libactivemq-cpp/libactivemq-cpp_3.9.5-1~trixie1_arm64.deb
+Size: 6022020
+SHA256: 93c02bf55f0322f83f63d5abd3cc275a516ae2d373166aba4f3f955459386331
+SHA1: fca5489f62d39d849380170a437e258ad8fe57c8
+MD5sum: 09449b7a6791a4cc2b28101885090436
+Description: ActiveMQ-CPP runtime libraries
+ ActiveMQ-CPP is a C++ client library for Apache ActiveMQ.
+ This package contains the runtime libraries.
+
+Package: libactivemq-cpp-dev
+Version: 3.9.5-1~trixie1
+Architecture: arm64
+Maintainer: PiTrac Build System <build@pitrac.org>
+Homepage: https://activemq.apache.org/components/cms/
+Depends: libactivemq-cpp (= 3.9.5-1), libapr1-dev, libaprutil1-dev, libssl-dev
+Priority: optional
+Section: libdevel
+Filename: pool/main/liba/libactivemq-cpp-dev/libactivemq-cpp-dev_3.9.5-1~trixie1_arm64.deb
+Size: 3450788
+SHA256: 77f726bc3e136c8689c018f4464ec39cbc6944b0ed9fa9cb78e7344f6c4f9948
+SHA1: 335aa5fb19c411589ac0085cba1507082a61d01d
+MD5sum: 739ecb0fe6abbbae1d7786661add3f6c
+Description: ActiveMQ-CPP development files
+ ActiveMQ-CPP is a C++ client library for Apache ActiveMQ.
+ This package contains the development files including headers and libraries.
+
+Package: liblgpio-dev
+Version: 0.2.2-1~trixie1
+Architecture: arm64
+Maintainer: PiTrac Build System <build@pitrac.org>
+Depends: liblgpio1 (= 0.2.2-1)
+Homepage: http://abyz.me.uk/lg/
+Priority: optional
+Section: libdevel
+Filename: pool/main/libl/liblgpio-dev/liblgpio-dev_0.2.2-1~trixie1_arm64.deb
+Size: 24564
+SHA256: 659b04bbc3796d20857e195d05b859664dfe247fbdaa0bb5a63c14015fbd3427
+SHA1: 055fc327aae106e8fd5d719cad3ab0f1ecd102db
+MD5sum: e20947ff619c253d0dddaf7d83fc246a
+Description: GPIO library for Linux - development files
+ A library for handling GPIO operations on Linux systems.
+ This package contains the development files (headers and static libraries).
+Replaces: liblgpio-dev (<= 0.2.2-1~rpt99)
+Conflicts: liblgpio-dev (<= 0.2.2-1~rpt99)
+Provides: liblgpio-dev
+
+Package: liblgpio1
+Version: 0.2.2-1~trixie1
+Architecture: arm64
+Maintainer: PiTrac Build System <build@pitrac.org>
+Homepage: http://abyz.me.uk/lg/
+Priority: optional
+Section: libs
+Filename: pool/main/libl/liblgpio1/liblgpio1_0.2.2-1~trixie1_arm64.deb
+Size: 42800
+SHA256: a7e457548bca9d81d24fcf24a4e9e17e39adc337bb16ab30ebd83c12c2e9c5a0
+SHA1: 4e385261a5b792780a3a694829e9fa865b2f74ec
+MD5sum: 739f19b77163017d07fe8f9703385893
+Description: GPIO library for Linux - runtime
+ A library for handling GPIO operations on Linux systems.
+ This package contains the runtime library.
+Replaces: liblgpio1 (<= 0.2.2-1~rpt99)
+Conflicts: liblgpio1 (<= 0.2.2-1~rpt99)
+Provides: liblgpio1
+
+Package: libmsgpack-cxx-dev
+Version: 6.1.1-1~trixie1
+Architecture: all
+Maintainer: PiTrac Build System <build@pitrac.org>
+Homepage: https://msgpack.org/
+Depends: libboost-dev
+Priority: optional
+Section: libdevel
+Filename: pool/main/libm/libmsgpack-cxx-dev/libmsgpack-cxx-dev_6.1.1-1~trixie1_all.deb
+Size: 192808
+SHA256: 9f9152c692055c8903756b3c9a5747addb1def71468d582ce183f815b1df0ec9
+SHA1: d03489b1296c27d4be2625bdf4fc193425dd141b
+MD5sum: f703c3b682d878a8d77bb8d077869f65
+Description: MessagePack implementation for C++ - development files
+ MessagePack is an efficient binary serialization format. It lets you exchange
+ data among multiple languages like JSON. But it's faster and smaller.
+ .
+ This package contains the C++ header-only library files.
+
+Package: libonnxruntime1.17.3
+Version: 1.17.3-xnnpack-verified~trixie1
+Architecture: arm64
+Maintainer: PiTrac Build <build@pitrac.local>
+Depends: libc6, libstdc++6, libgcc-s1, libgomp1
+Priority: optional
+Section: libs
+Filename: pool/main/libo/libonnxruntime1.17.3/libonnxruntime1.17.3_1.17.3-xnnpack-verified~trixie1_arm64.deb
+Size: 4305672
+SHA256: 9a2d283be75168141312508e1d4657479ba3cc24226c1afdda1faf9a3cfa76f9
+SHA1: 0b46e0467b64a94fef69066248d0bc9fd4f6c844
+MD5sum: 1597aa835abe60c32384cb67be787627
+Description: ONNX Runtime with XNNPACK Provider (Verified)
+ High-performance inference engine for ONNX models.
+ This package includes the XNNPACK execution provider for
+ 2-4x faster inference on ARM devices like Raspberry Pi 5.
+ .
+ XNNPACK Status: VERIFIED with 248 symbols present
+Provides: libonnxruntime
+Conflicts: libonnxruntime1.17.3, libonnxruntime1.18.1, libonnxruntime1.23.0
+Replaces: libonnxruntime1.17.3, libonnxruntime1.18.1, libonnxruntime1.23.0
+
+Package: libonnxruntime1.22.1
+Version: 1.22.1-xnnpack3~trixie1
+Architecture: arm64
+Maintainer: PiTrac Build <build@pitrac.local>
+Depends: libc6, libstdc++6, libgcc-s1, libgomp1
+Priority: optional
+Section: libs
+Filename: pool/main/libo/libonnxruntime1.22.1/libonnxruntime1.22.1_1.22.1-xnnpack3~trixie1_arm64.deb
+Size: 5436168
+SHA256: 5f36c6115fc0567d742f2e4d94c5d10a96316d33f707cae91879b905e31323ad
+SHA1: 4b5f2d6de9284206c966eddea053d8c6bd156391
+MD5sum: d848147a535c55c76c73bc3b76dea8a1
+Description: ONNX Runtime with XNNPACK
+ High-performance inference with XNNPACK provider.
+ 2-4x faster on Raspberry Pi 5.
+Provides: libonnxruntime
+Conflicts: libonnxruntime1.17.3, libonnxruntime1.18.1, libonnxruntime1.23.0
+Replaces: libonnxruntime1.17.3, libonnxruntime1.18.1, libonnxruntime1.23.0
+
+Package: libopencv-dev
+Version: 4.11.0-1~trixie1
+Architecture: arm64
+Maintainer: PiTrac Build System <build@pitrac.org>
+Homepage: https://opencv.org/
+Depends: libopencv4.11 (= 4.11.0-1), libgtk-3-dev, libavcodec-dev,
+ libavformat-dev, libswscale-dev, libtbb-dev, libgstreamer1.0-dev,
+ libgstreamer-plugins-base1.0-dev
+Priority: optional
+Section: libdevel
+Filename: pool/main/libo/libopencv-dev/libopencv-dev_4.11.0-1~trixie1_arm64.deb
+Size: 8863748
+SHA256: afcb6f83942700674619840fc5b3379a03208a8a74b33165188541ebedb855e2
+SHA1: 9b79a437eabfcb71e0f691bcaeadf32522a4f0fb
+MD5sum: 450f2db8babb9ce446152ce47b2aa210
+Description: OpenCV development files
+ OpenCV (Open Source Computer Vision Library) is a library of programming
+ functions mainly aimed at real-time computer vision.
+ .
+ This package contains the development files including headers and libraries
+ needed to build applications using OpenCV.
+
+Package: libopencv4.11
+Version: 4.11.0-1~trixie1
+Architecture: arm64
+Maintainer: PiTrac Build System <build@pitrac.org>
+Homepage: https://opencv.org/
+Depends: libgtk-3-0, libavcodec59 | libavcodec58, libavformat59 | libavformat58,
+ libswscale6 | libswscale5, libtbb12, libgstreamer1.0-0,
+ libgstreamer-plugins-base1.0-0, libopenexr-3-1-30 | libopenexr25,
+ libjpeg62-turbo | libjpeg8, libpng16-16, libtiff6 | libtiff5
+Priority: optional
+Section: libs
+Filename: pool/main/libo/libopencv4.11/libopencv4.11_4.11.0-1~trixie1_arm64.deb
+Size: 8084700
+SHA256: d04fe38ec76f80c348f6a439f73e61e61c7569493fb8d2a42ecbaeee28653b0e
+SHA1: 46f40b0a074397394264f777b674a4fc4dc93e3f
+MD5sum: 65d380673e769cd9499323ae595ec201
+Description: OpenCV runtime libraries
+ OpenCV (Open Source Computer Vision Library) is a library of programming
+ functions mainly aimed at real-time computer vision.
+ .
+ This package contains the runtime libraries for OpenCV 4.11.0.
+

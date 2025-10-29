@@ -1,0 +1,5 @@
+Component: main
+Origin: PiTrac
+Label: PiTrac Packages
+Architecture: arm64
+Description: PiTrac package repository for Debian/Raspbian Trixie (Debian 13)

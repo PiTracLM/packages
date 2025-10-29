@@ -14,10 +14,10 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-log_info() { echo -e "${BLUE}[INFO]$(NC) $*"; }
-log_warn() { echo -e "${YELLOW}[WARN]$(NC) $*"; }
-log_error() { echo -e "${RED}[ERROR]$(NC) $*" >&2; }
-log_success() { echo -e "${GREEN}[✓]$(NC) $*"; }
+log_info() { echo -e "${BLUE}[INFO]${NC} $*"; }
+log_warn() { echo -e "${YELLOW}[WARN]${NC} $*"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $*" >&2; }
+log_success() { echo -e "${GREEN}[✓]${NC} $*"; }
 
 # Validate arguments
 if [ $# -ne 1 ]; then
@@ -57,17 +57,33 @@ if command -v gpg &> /dev/null; then
     fi
 fi
 
-# Create distributions file
+# Create distributions file with both bookworm and trixie
 cat > "$REPO_DIR/conf/distributions" << EOF
 Origin: PiTrac
 Label: PiTrac Packages
 Codename: bookworm
 Architectures: arm64 source
 Components: main contrib non-free
-Description: PiTrac package repository for Debian/Raspbian Bookworm
+Description: PiTrac package repository for Debian/Raspbian Bookworm (Debian 12)
 EOF
 
 # Add SignWith if we have a GPG key
+if [ -n "$GPG_KEY_ID" ]; then
+    echo "SignWith: $GPG_KEY_ID" >> "$REPO_DIR/conf/distributions"
+fi
+
+# Add trixie distribution
+cat >> "$REPO_DIR/conf/distributions" << EOF
+
+Origin: PiTrac
+Label: PiTrac Packages
+Codename: trixie
+Architectures: arm64 source
+Components: main contrib non-free
+Description: PiTrac package repository for Debian/Raspbian Trixie (Debian 13)
+EOF
+
+# Add SignWith for trixie if we have a GPG key
 if [ -n "$GPG_KEY_ID" ]; then
     echo "SignWith: $GPG_KEY_ID" >> "$REPO_DIR/conf/distributions"
 fi
@@ -85,13 +101,29 @@ cat > "$REPO_DIR/conf/incoming" << 'EOF'
 Name: default
 IncomingDir: incoming
 TempDir: tmp
-Allow: bookworm
+Allow: bookworm trixie
 Cleanup: unused_files on_deny on_error
 EOF
 
 mkdir -p "$REPO_DIR/conf/override"
 
 cat > "$REPO_DIR/conf/override.bookworm.main" << 'EOF'
+# Override file for main component
+# Format: package priority section [maintainer]
+
+# PiTrac packages
+pitrac optional misc
+pitrac-dev optional libdevel
+
+# Library packages
+liblgpio1 optional libs
+liblgpio-dev optional libdevel
+libmsgpack-cxx-dev optional libdevel
+libopencv4.11 optional libs
+libopencv-dev optional libdevel
+EOF
+
+cat > "$REPO_DIR/conf/override.trixie.main" << 'EOF'
 # Override file for main component
 # Format: package priority section [maintainer]
 
@@ -121,7 +153,12 @@ log_info "Initializing repository..."
 cd "$REPO_DIR"
 
 if ! reprepro export bookworm; then
-    log_error "Failed to initialize repository"
+    log_error "Failed to initialize repository for bookworm"
+    exit 1
+fi
+
+if ! reprepro export trixie; then
+    log_error "Failed to initialize repository for trixie"
     exit 1
 fi
 
@@ -165,7 +202,8 @@ cat > "$REPO_DIR/header.html" << 'EOF'
 <div class="header">
     <h1>PiTrac Package Repository</h1>
     <p>Debian/Raspbian packages for the PiTrac golf ball tracking system.</p>
-    <p><strong>Repository URL:</strong> <code>deb [arch=arm64] https://your-domain.com/repo bookworm main</code></p>
+    <p><strong>Debian 12 (Bookworm):</strong> <code>deb [arch=arm64] https://your-domain.com/repo bookworm main</code></p>
+    <p><strong>Debian 13 (Trixie):</strong> <code>deb [arch=arm64] https://your-domain.com/repo trixie main</code></p>
 </div>
 EOF
 
@@ -186,9 +224,25 @@ This is the official APT repository for PiTrac packages.
 
 Add this repository to your system:
 
+### For Debian 12 (Bookworm)
+
 ```bash
 # Add repository
 echo "deb [arch=arm64] https://your-domain.com/repo bookworm main" | sudo tee /etc/apt/sources.list.d/pitrac.list
+
+# Add GPG key (if repository is signed)
+curl -fsSL https://your-domain.com/repo/public.key | sudo gpg --dearmor -o /usr/share/keyrings/pitrac-archive-keyring.gpg
+
+# Update and install
+sudo apt update
+sudo apt install pitrac
+```
+
+### For Debian 13 (Trixie)
+
+```bash
+# Add repository
+echo "deb [arch=arm64] https://your-domain.com/repo trixie main" | sudo tee /etc/apt/sources.list.d/pitrac.list
 
 # Add GPG key (if repository is signed)
 curl -fsSL https://your-domain.com/repo/public.key | sudo gpg --dearmor -o /usr/share/keyrings/pitrac-archive-keyring.gpg
@@ -235,29 +289,37 @@ fi
 cat > "$REPO_DIR/add-package.sh" << 'EOF'
 #!/bin/bash
 # Add package to repository
-# Usage: ./add-package.sh <package.deb> [component]
+# Usage: ./add-package.sh <package.deb> [distribution] [component]
 
 set -e
 
 if [ $# -lt 1 ]; then
-    echo "Usage: $0 <package.deb> [component]"
+    echo "Usage: $0 <package.deb> [distribution] [component]"
+    echo "  distribution: bookworm (default) or trixie"
+    echo "  component: main (default), contrib, or non-free"
     exit 1
 fi
 
 PACKAGE="$1"
-COMPONENT="${2:-main}"
+DISTRO="${2:-bookworm}"
+COMPONENT="${3:-main}"
 
 if [ ! -f "$PACKAGE" ]; then
     echo "Error: Package file not found: $PACKAGE"
     exit 1
 fi
 
-echo "Adding package: $PACKAGE (component: $COMPONENT)"
+if [[ "$DISTRO" != "bookworm" && "$DISTRO" != "trixie" ]]; then
+    echo "Error: Distribution must be 'bookworm' or 'trixie'"
+    exit 1
+fi
+
+echo "Adding package: $PACKAGE to $DISTRO (component: $COMPONENT)"
 
 # Include the package
-reprepro includedeb bookworm "$PACKAGE"
+reprepro includedeb "$DISTRO" "$PACKAGE"
 
-echo "Package added successfully"
+echo "Package added successfully to $DISTRO"
 EOF
 
 chmod +x "$REPO_DIR/add-package.sh"
@@ -265,23 +327,32 @@ chmod +x "$REPO_DIR/add-package.sh"
 cat > "$REPO_DIR/remove-package.sh" << 'EOF'
 #!/bin/bash
 # Remove package from repository
-# Usage: ./remove-package.sh <package-name>
+# Usage: ./remove-package.sh <package-name> [distribution]
 
 set -e
 
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 <package-name>"
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 <package-name> [distribution]"
+    echo "  distribution: bookworm (default), trixie, or 'all' for both"
     exit 1
 fi
 
 PACKAGE="$1"
+DISTRO="${2:-bookworm}"
 
-echo "Removing package: $PACKAGE"
-
-# Remove the package
-reprepro remove bookworm "$PACKAGE"
-
-echo "Package removed successfully"
+if [[ "$DISTRO" == "all" ]]; then
+    echo "Removing package: $PACKAGE from all distributions"
+    reprepro remove bookworm "$PACKAGE" || true
+    reprepro remove trixie "$PACKAGE" || true
+    echo "Package removed from all distributions"
+elif [[ "$DISTRO" != "bookworm" && "$DISTRO" != "trixie" ]]; then
+    echo "Error: Distribution must be 'bookworm', 'trixie', or 'all'"
+    exit 1
+else
+    echo "Removing package: $PACKAGE from $DISTRO"
+    reprepro remove "$DISTRO" "$PACKAGE"
+    echo "Package removed successfully from $DISTRO"
+fi
 EOF
 
 chmod +x "$REPO_DIR/remove-package.sh"
@@ -289,14 +360,42 @@ chmod +x "$REPO_DIR/remove-package.sh"
 cat > "$REPO_DIR/list-packages.sh" << 'EOF'
 #!/bin/bash
 # List packages in repository
-# Usage: ./list-packages.sh [--verbose]
+# Usage: ./list-packages.sh [distribution] [--verbose]
 
-if [ "${1:-}" = "--verbose" ]; then
-    echo "Detailed package listing:"
-    reprepro list bookworm
+DISTRO="${1:-all}"
+VERBOSE=""
+
+if [[ "$1" == "--verbose" || "$2" == "--verbose" ]]; then
+    VERBOSE="--verbose"
+    if [[ "$1" == "--verbose" ]]; then
+        DISTRO="all"
+    fi
+fi
+
+if [[ "$DISTRO" != "bookworm" && "$DISTRO" != "trixie" && "$DISTRO" != "all" ]]; then
+    echo "Usage: $0 [distribution] [--verbose]"
+    echo "  distribution: bookworm, trixie, or all (default)"
+    exit 1
+fi
+
+list_distro() {
+    local dist=$1
+    echo ""
+    echo "=== $dist ==="
+    if [ -n "$VERBOSE" ]; then
+        echo "Detailed package listing:"
+        reprepro list "$dist"
+    else
+        echo "Package summary:"
+        reprepro listmatched "$dist" '*' | cut -d' ' -f2 | sort | uniq -c
+    fi
+}
+
+if [[ "$DISTRO" == "all" ]]; then
+    list_distro bookworm
+    list_distro trixie
 else
-    echo "Package summary:"
-    reprepro listmatched bookworm '*' | cut -d' ' -f2 | sort | uniq -c
+    list_distro "$DISTRO"
 fi
 EOF
 
