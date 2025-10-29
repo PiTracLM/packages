@@ -1,0 +1,64 @@
+Origin: PiTrac
+Label: PiTrac Packages
+Codename: trixie
+Date: Wed, 29 Oct 2025 16:26:00 UTC
+Architectures: arm64
+Components: main contrib non-free
+Description: PiTrac package repository for Debian/Raspbian Trixie (Debian 13)
+MD5Sum:
+ b702fdf1ed66af0309617c9c93d36423 7177 main/binary-arm64/Packages
+ e01c973d1f5c37675796606d9b518ad8 2335 main/binary-arm64/Packages.gz
+ 0e90e443c5cfb1de136873897f18e0ec 152 main/binary-arm64/Release
+ d41d8cd98f00b204e9800998ecf8427e 0 main/source/Sources
+ 7029066c27ac6f5ef18d660d5741979a 20 main/source/Sources.gz
+ 001bee5ade9eb8984600b718643871fa 153 main/source/Release
+ d41d8cd98f00b204e9800998ecf8427e 0 contrib/binary-arm64/Packages
+ 7029066c27ac6f5ef18d660d5741979a 20 contrib/binary-arm64/Packages.gz
+ 852ec3c2f63ce41cd8641e7275bf8fe5 155 contrib/binary-arm64/Release
+ d41d8cd98f00b204e9800998ecf8427e 0 contrib/source/Sources
+ 7029066c27ac6f5ef18d660d5741979a 20 contrib/source/Sources.gz
+ 80d09a31ce98a319390a54276d38338e 156 contrib/source/Release
+ d41d8cd98f00b204e9800998ecf8427e 0 non-free/binary-arm64/Packages
+ 7029066c27ac6f5ef18d660d5741979a 20 non-free/binary-arm64/Packages.gz
+ cb000c3047273ad497d726081ba395e8 156 non-free/binary-arm64/Release
+ d41d8cd98f00b204e9800998ecf8427e 0 non-free/source/Sources
+ 7029066c27ac6f5ef18d660d5741979a 20 non-free/source/Sources.gz
+ 12caff4c427d9b4335a89c87b00e853b 157 non-free/source/Release
+SHA1:
+ 44d76830427059a4f6c9684fbad425b23a03dba2 7177 main/binary-arm64/Packages
+ d0b7979942e6ec04ca57d1ef39951e16364b1eb2 2335 main/binary-arm64/Packages.gz
+ 176b199254c844b03ac003cf6e31333c05ccdbbe 152 main/binary-arm64/Release
+ da39a3ee5e6b4b0d3255bfef95601890afd80709 0 main/source/Sources
+ 46c6643f07aa7f6bfe7118de926b86defc5087c4 20 main/source/Sources.gz
+ 3b0e634546684a4b96e996506ea1f4c36350f179 153 main/source/Release
+ da39a3ee5e6b4b0d3255bfef95601890afd80709 0 contrib/binary-arm64/Packages
+ 46c6643f07aa7f6bfe7118de926b86defc5087c4 20 contrib/binary-arm64/Packages.gz
+ 6ad76f3f19d6404d4c818d584ca5fa00a2db5576 155 contrib/binary-arm64/Release
+ da39a3ee5e6b4b0d3255bfef95601890afd80709 0 contrib/source/Sources
+ 46c6643f07aa7f6bfe7118de926b86defc5087c4 20 contrib/source/Sources.gz
+ f2e5181ad46cf8820356eefd89c486f9cbfb81d0 156 contrib/source/Release
+ da39a3ee5e6b4b0d3255bfef95601890afd80709 0 non-free/binary-arm64/Packages
+ 46c6643f07aa7f6bfe7118de926b86defc5087c4 20 non-free/binary-arm64/Packages.gz
+ 7939076f80746b8e19ffe0332d7b6a0cd88e93ae 156 non-free/binary-arm64/Release
+ da39a3ee5e6b4b0d3255bfef95601890afd80709 0 non-free/source/Sources
+ 46c6643f07aa7f6bfe7118de926b86defc5087c4 20 non-free/source/Sources.gz
+ 69f890e0342d2eaf2c96eb0aac77b7db295cd0dd 157 non-free/source/Release
+SHA256:
+ e94371e0496bccb17952b10978d30fa208c63fa20fd79908b946c6247e507d0c 7177 main/binary-arm64/Packages
+ c4bc0c4062272dc481f6b83278b68dda2367eb2bb1e79acab982fb79ec701317 2335 main/binary-arm64/Packages.gz
+ 0ce2047036bc7370988a386649fa445cfa0b7f9e8c754e40e1502d766f5bac0f 152 main/binary-arm64/Release
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 main/source/Sources
+ 59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 main/source/Sources.gz
+ f0cbe23521c1ad61816debacf25598d923301070add13d84f8c24b10f5aa2168 153 main/source/Release
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 contrib/binary-arm64/Packages
+ 59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 contrib/binary-arm64/Packages.gz
+ 3d35de5ce353d3d66d0164576ae04ed0c2236f7abaf00fe16beb33145aff02a0 155 contrib/binary-arm64/Release
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 contrib/source/Sources
+ 59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 contrib/source/Sources.gz
+ 6f53b535e49334a108c42ca26a3f12da8d09aa770f4c3654a5fce97d048053e4 156 contrib/source/Release
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 non-free/binary-arm64/Packages
+ 59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 non-free/binary-arm64/Packages.gz
+ a4d3decba71eca7e190aa6e64176c5622aed97a84bf1e064182afbc5d43544ba 156 non-free/binary-arm64/Release
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 non-free/source/Sources
+ 59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 non-free/source/Sources.gz
+ 68ccf15eecc8b20bc7cb81410918b3cb2735c86a61eb40f0600009fc2609b924 157 non-free/source/Release

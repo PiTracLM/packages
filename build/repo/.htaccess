@@ -1,0 +1,23 @@
+Options +Indexes
+IndexOptions FancyIndexing HTMLTable NameWidth=* DescriptionWidth=*
+HeaderName /header.html
+ReadmeName /footer.html
+
+# Compress text files
+<Files "*.txt">
+    <IfModule mod_deflate.c>
+        SetOutputFilter DEFLATE
+    </IfModule>
+</Files>
+
+<Files "Packages*">
+    <IfModule mod_deflate.c>
+        SetOutputFilter DEFLATE
+    </IfModule>
+</Files>
+
+<Files "Sources*">
+    <IfModule mod_deflate.c>
+        SetOutputFilter DEFLATE
+    </IfModule>
+</Files>

@@ -1,0 +1,10 @@
+package: msgpack
+distribution: trixie
+architecture: arm64
+version: 6.1.1-1
+build_date: 2025-10-29T14:37:07Z
+build_host: Gallopo-AMD
+docker_platform: linux/arm64
+package_file: libmsgpack-cxx-dev_6.1.1-1_all.deb
+package_size: 192796
+md5sum: 863b0d6c142f9ff3c43cbe4ae9962ffa

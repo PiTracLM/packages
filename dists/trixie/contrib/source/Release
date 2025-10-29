@@ -1,0 +1,5 @@
+Component: contrib
+Origin: PiTrac
+Label: PiTrac Packages
+Architecture: source
+Description: PiTrac package repository for Debian/Raspbian Trixie (Debian 13)

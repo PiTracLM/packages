@@ -12,10 +12,10 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-log_info() { echo -e "${BLUE}[INFO]$(NC) $*"; }
-log_warn() { echo -e "${YELLOW}[WARN]$(NC) $*"; }
-log_error() { echo -e "${RED}[ERROR]$(NC) $*" >&2; }
-log_success() { echo -e "${GREEN}[✓]$(NC) $*"; }
+log_info() { echo -e "${BLUE}[INFO]${NC} $*"; }
+log_warn() { echo -e "${YELLOW}[WARN]${NC} $*"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $*" >&2; }
+log_success() { echo -e "${GREEN}[✓]${NC} $*"; }
 
 if [ $# -ne 2 ]; then
     log_error "Usage: $0 <repo_dir> <debs_dir>"

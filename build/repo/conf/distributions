@@ -1,0 +1,15 @@
+Origin: PiTrac
+Label: PiTrac Packages
+Codename: bookworm
+Architectures: arm64 source
+Components: main contrib non-free
+Description: PiTrac package repository for Debian/Raspbian Bookworm (Debian 12)
+SignWith: BC23DD88F623199D
+
+Origin: PiTrac
+Label: PiTrac Packages
+Codename: trixie
+Architectures: arm64 source
+Components: main contrib non-free
+Description: PiTrac package repository for Debian/Raspbian Trixie (Debian 13)
+SignWith: BC23DD88F623199D

@@ -1,0 +1,4 @@
+# Global reprepro options
+verbose
+ask-passphrase
+basedir .

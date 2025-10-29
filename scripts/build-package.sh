@@ -34,6 +34,10 @@ ARCH="$2"
 VERSION="$3"
 DISTRO="$4"
 
+# Append distribution suffix to version using tilde notation
+# This ensures proper upgrade paths: 1.0~bookworm1 < 1.0-1 < 1.0-2
+DISTRO_VERSION="${VERSION}~${DISTRO}1"
+
 case "$PACKAGE" in
     lgpio|msgpack|activemq|opencv|onnxruntime|pitrac)
         ;;
@@ -77,7 +81,7 @@ OUTPUT_DIR="$DEB_DIR/$DISTRO/$ARCH"
 DOCKERFILE="$PROJECT_ROOT/docker/Dockerfile.$PACKAGE"
 IMAGE_TAG="pitrac-$PACKAGE:$DISTRO-$ARCH"
 
-log_info "Building $PACKAGE for $DISTRO/$ARCH (version $VERSION)"
+log_info "Building $PACKAGE for $DISTRO/$ARCH (version $VERSION → $DISTRO_VERSION)"
 
 mkdir -p "$OUTPUT_DIR"
 
@@ -109,7 +113,7 @@ docker build \
     --platform="$DOCKER_PLATFORM" \
     --build-arg DEBIAN_DISTRO="$DISTRO" \
     --build-arg DEBIAN_ARCH="$DEBIAN_ARCH" \
-    --build-arg PACKAGE_VERSION="$VERSION" \
+    --build-arg PACKAGE_VERSION="$DISTRO_VERSION" \
     $EXTRA_BUILD_ARGS \
     -f "$DOCKERFILE" \
     -t "$IMAGE_TAG" \
@@ -145,7 +149,7 @@ fi
 
 # Verify package was created
 # Some packages have different naming patterns (e.g., liblgpio1 instead of lgpio)
-DEB_FILE=$(find "$OUTPUT_DIR" -name "*${PACKAGE}*_${VERSION}_*.deb" -type f | head -1)
+DEB_FILE=$(find "$OUTPUT_DIR" -name "*${PACKAGE}*_${DISTRO_VERSION}_*.deb" -type f | head -1)
 if [ -z "$DEB_FILE" ]; then
     DEB_FILE=$(find "$OUTPUT_DIR" -name "*${PACKAGE}*.deb" -type f | head -1)
 fi
@@ -162,12 +166,13 @@ else
     exit 1
 fi
 
-METADATA_FILE="$OUTPUT_DIR/${PACKAGE}_${DISTRO}_${ARCH}_${VERSION}.metadata"
+METADATA_FILE="$OUTPUT_DIR/${PACKAGE}_${DISTRO}_${ARCH}_${DISTRO_VERSION}.metadata"
 cat > "$METADATA_FILE" << EOF
 package: $PACKAGE
 distribution: $DISTRO
 architecture: $ARCH
-version: $VERSION
+base_version: $VERSION
+distro_version: $DISTRO_VERSION
 build_date: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
 build_host: $(hostname)
 docker_platform: $DOCKER_PLATFORM

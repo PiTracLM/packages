@@ -16,14 +16,16 @@ DOCKER_BUILD_OPTS := --no-cache
 # Supported distributions
 DISTROS := bookworm trixie
 
-# Shared version configuration (same across distros)
+# Base version configuration (same upstream version across distros)
+# Note: Distribution suffixes (~bookworm1 or ~trixie1) are automatically appended by build-package.sh
 LGPIO_VERSION := 0.2.2-1
 MSGPACK_VERSION := 6.1.1-1
 ACTIVEMQ_VERSION := 3.9.5-1
 OPENCV_VERSION := 4.11.0-1
 PITRAC_VERSION := $(shell date +%Y.%m.%d)-1
 
-# Distro-specific versions (when they differ)
+# Distro-specific base versions (when upstream differs)
+# Note: Distribution suffixes are automatically appended by build-package.sh
 BOOKWORM_ONNXRUNTIME_VERSION := 1.17.3-1
 TRIXIE_ONNXRUNTIME_VERSION := 1.22.1-1
 
@@ -116,18 +118,18 @@ help: ## Show this help message
 versions: ## Show current package versions
 	$(call log_info,Package versions by distribution:)
 	@echo ""
-	@echo "Shared versions (same across distros):"
-	@echo "  lgpio:       $(LGPIO_VERSION)"
-	@echo "  msgpack:     $(MSGPACK_VERSION)"
-	@echo "  activemq:    $(ACTIVEMQ_VERSION)"
-	@echo "  opencv:      $(OPENCV_VERSION)"
-	@echo "  pitrac:      $(PITRAC_VERSION)"
+	@echo "Base versions (distribution suffix ~<distro>1 appended automatically):"
+	@echo "  lgpio:       $(LGPIO_VERSION) → $(LGPIO_VERSION)~bookworm1 / $(LGPIO_VERSION)~trixie1"
+	@echo "  msgpack:     $(MSGPACK_VERSION) → $(MSGPACK_VERSION)~bookworm1 / $(MSGPACK_VERSION)~trixie1"
+	@echo "  activemq:    $(ACTIVEMQ_VERSION) → $(ACTIVEMQ_VERSION)~bookworm1 / $(ACTIVEMQ_VERSION)~trixie1"
+	@echo "  opencv:      $(OPENCV_VERSION) → $(OPENCV_VERSION)~bookworm1 / $(OPENCV_VERSION)~trixie1"
+	@echo "  pitrac:      $(PITRAC_VERSION) → $(PITRAC_VERSION)~bookworm1 / $(PITRAC_VERSION)~trixie1"
 	@echo ""
 	@echo "Bookworm-specific:"
-	@echo "  onnxruntime: $(BOOKWORM_ONNXRUNTIME_VERSION)"
+	@echo "  onnxruntime: $(BOOKWORM_ONNXRUNTIME_VERSION) → $(BOOKWORM_ONNXRUNTIME_VERSION)~bookworm1"
 	@echo ""
 	@echo "Trixie-specific:"
-	@echo "  onnxruntime: $(TRIXIE_ONNXRUNTIME_VERSION) (Eigen hash fix included)"
+	@echo "  onnxruntime: $(TRIXIE_ONNXRUNTIME_VERSION) → $(TRIXIE_ONNXRUNTIME_VERSION)~trixie1 (Eigen hash fix included)"
 
 setup: ## Create build directories and setup environment
 	$(call log_info,Setting up multi-distro build environment...)
