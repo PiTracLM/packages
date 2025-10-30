@@ -87,7 +87,7 @@ install_dependencies() {
 download_activemq() {
     log_info "Downloading ActiveMQ-CPP ${ACTIVEMQ_VERSION} source..."
 
-    BUILD_DIR="/tmp/activemq-build-$$"
+    BUILD_DIR="/var/tmp/activemq-build-$$"
     mkdir -p "$BUILD_DIR"
     cd "$BUILD_DIR"
 
@@ -133,7 +133,7 @@ build_activemq() {
     # Use ccache to speed up rebuilds
     export CC="ccache gcc"
     export CXX="ccache g++"
-    export CCACHE_DIR="/tmp/ccache"
+    export CCACHE_DIR="/var/tmp/ccache"
 
     # Configure
     log_info "Running configure..."

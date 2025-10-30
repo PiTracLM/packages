@@ -10,7 +10,7 @@ set -euo pipefail
 # Configuration
 ONNX_VERSION="${1:-1.17.3}"
 DISTRO="${2:-bookworm}"
-BUILD_DIR="/tmp/onnx-xnnpack-fixed-$$"
+BUILD_DIR="/var/tmp/onnx-xnnpack-fixed-$$"
 BASE_OUTPUT_DIR="${OUTPUT_DIR:-$HOME/pitrac-packages}"
 DEBIAN_ARCH="arm64"
 PACKAGE_VERSION="${ONNX_VERSION}-xnnpack3"

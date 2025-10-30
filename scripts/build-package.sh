@@ -121,7 +121,7 @@ docker build \
 
 log_info "Extracting .deb package from container"
 CONTAINER_ID=$(docker create --platform="$DOCKER_PLATFORM" "$IMAGE_TAG")
-TEMP_DIR="/tmp/pitrac-build-$$"
+TEMP_DIR="/var/tmp/pitrac-build-$$"
 
 cleanup() {
     if [ -n "${CONTAINER_ID:-}" ]; then

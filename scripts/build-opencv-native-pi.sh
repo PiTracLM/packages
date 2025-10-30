@@ -135,7 +135,7 @@ install_dependencies() {
 download_opencv() {
     log_info "Downloading OpenCV ${OPENCV_VERSION} source..."
 
-    BUILD_DIR="/tmp/opencv-build-$$"
+    BUILD_DIR="/var/tmp/opencv-build-$$"
     mkdir -p "$BUILD_DIR"
     cd "$BUILD_DIR"
 
@@ -183,7 +183,7 @@ build_opencv() {
     # Use ccache to speed up rebuilds
     export CC="ccache gcc"
     export CXX="ccache g++"
-    export CCACHE_DIR="/tmp/ccache"
+    export CCACHE_DIR="/var/tmp/ccache"
 
     # Configure with CMake
     log_info "Running CMake configuration..."
