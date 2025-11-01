@@ -236,35 +236,3 @@ echo "Verify XNNPACK:"
 echo "  strings /usr/lib/aarch64-linux-gnu/libonnxruntime.so | grep -i xnnpack"
 echo ""
 log_info "Build artifacts preserved in: $BUILD_DIR"
-allopo@pitrac:~/build $ ./onnx.sh 
-[INFO] Looking for built library...
-[✓] Found library: /tmp/onnx-fixed-build/onnxruntime/build/libonnxruntime.so.1.17.3
-[INFO] Verifying XNNPACK provider...
-[✓] XNNPACK VERIFIED! Found 248 XNNPACK symbols
-XnnpackExecutionProvider
-virtual std::vector<std::shared_ptr<onnxruntime::IAllocator> > onnxruntime::XnnpackExecutionProvider::CreatePreferredAllocators()
-virtual std::vector<std::unique_ptr<onnxruntime::ComputeCapability> > onnxruntime::XnnpackExecutionProvider::GetCapability(const onnxruntime::GraphViewer&, const onnxruntime::IExecutionProvider::IKernelLookup&) const
-XNNPACK
-Unknown provider name. Currently supported values are 'OPENVINO', 'SNPE', 'XNNPACK', 'QNN', 'WEBNN' and 'AZURE'
-XnnpackExecutionProvider
-[INFO] Library version: 1.17.3
-[INFO] Copying library files...
-[INFO] Copying header files...
-[INFO] Building Debian package...
-dpkg-deb: building package 'libonnxruntime1.17.3' in '/tmp/tmp.zZMw1jtsRZ/libonnxruntime1.17.3_1.17.3-xnnpack-verified_arm64.deb'.
-[✓] ===========================================
-[✓] Package Created Successfully!
-[✓] ===========================================
-
-Package: /home/cgallopo/pitrac-packages/libonnxruntime1.17.3_1.17.3-xnnpack-verified_arm64.deb
-
-XNNPACK Status: ✓ VERIFIED (248 symbols)
-
-Install on Raspberry Pi 5:
-  sudo dpkg -i /home/cgallopo/pitrac-packages/libonnxruntime1.17.3_1.17.3-xnnpack-verified_arm64.deb
-
-After installation, verify with:
-  /usr/share/doc/libonnxruntime1.17.3/verify-xnnpack.sh
-
-[✓] XNNPACK provider is confirmed present in this build!
-cgallopo@pitrac:~/build $

@@ -1,39 +1,39 @@
 Package: libactivemq-cpp
-Version: 3.9.5-1~bookworm1
+Version: 3.9.5-1
 Architecture: arm64
 Maintainer: PiTrac Build System <build@pitrac.org>
 Homepage: https://activemq.apache.org/components/cms/
 Depends: libapr1, libaprutil1, libssl3
 Priority: optional
 Section: libs
-Filename: pool/main/liba/libactivemq-cpp/libactivemq-cpp_3.9.5-1~bookworm1_arm64.deb
-Size: 5927252
-SHA256: a9863e0ea5860c7115e00e4c7fb39c7587e25a6d15c372664a31deb2d7b77376
-SHA1: aec2ab455bc7e2340ea2fabb11918e5a9db480a3
-MD5sum: d1db42c0937d453fedcb2dd18f015c8f
+Filename: pool/main/liba/libactivemq-cpp/libactivemq-cpp_3.9.5-1_arm64.deb
+Size: 5927244
+SHA256: 52bb25886a697a66f17e2706469f2a75a16d93f16680d4bf012ed939cfa1817e
+SHA1: 6c96eaa5a4820ae785e538c35658493971d2aebc
+MD5sum: 945fdf11c24517d2aaa7b859c511f681
 Description: ActiveMQ-CPP runtime libraries
  ActiveMQ-CPP is a C++ client library for Apache ActiveMQ.
  This package contains the runtime libraries.
 
 Package: libactivemq-cpp-dev
-Version: 3.9.5-1~bookworm1
+Version: 3.9.5-1
 Architecture: arm64
 Maintainer: PiTrac Build System <build@pitrac.org>
 Homepage: https://activemq.apache.org/components/cms/
 Depends: libactivemq-cpp (= 3.9.5-1), libapr1-dev, libaprutil1-dev, libssl-dev
 Priority: optional
 Section: libdevel
-Filename: pool/main/liba/libactivemq-cpp-dev/libactivemq-cpp-dev_3.9.5-1~bookworm1_arm64.deb
-Size: 3404648
-SHA256: 48a8bf0c1513542fe70deca539426f7a376b4605778d8e82d5e920841430a764
-SHA1: 52a69169daa3628fe3b74b0d57685b5e456809ce
-MD5sum: e28be8e5113df8e6917e401d02a47e1a
+Filename: pool/main/liba/libactivemq-cpp-dev/libactivemq-cpp-dev_3.9.5-1_arm64.deb
+Size: 3404636
+SHA256: 9894501b6f03a61ce616589bd2fc791d1647a590846af4e3ed89a302f7c00958
+SHA1: 11c497885b6f5a7b86495eae59192e95a8a71b51
+MD5sum: 92be3dc22e91eb318e10b018ddc2ee35
 Description: ActiveMQ-CPP development files
  ActiveMQ-CPP is a C++ client library for Apache ActiveMQ.
  This package contains the development files including headers and libraries.
 
 Package: liblgpio1
-Version: 0.2.2-1~bookworm1
+Version: 0.2.2-1
 Architecture: arm64
 Maintainer: PiTrac Build System <build@pitrac.org>
 Homepage: http://abyz.me.uk/lg/
@@ -42,28 +42,28 @@ Replaces: liblgpio-dev
 Provides: liblgpio-dev
 Priority: optional
 Section: libs
-Filename: pool/main/libl/liblgpio1/liblgpio1_0.2.2-1~bookworm1_arm64.deb
-Size: 99934
-SHA256: cd4ce68bd55c6ad44eeee91db544684d0c6e94d8ff9c1a4609bcce1446238ed5
-SHA1: ded975fa99396183c7ba16a34671d42834b670ed
-MD5sum: 06d8b49749d08bc24f480dc8f53566bb
+Filename: pool/main/libl/liblgpio1/liblgpio1_0.2.2-1_arm64.deb
+Size: 99910
+SHA256: a2e87af56ff056544b9583401dd514d37fefe2341b849261a9175c0444838f86
+SHA1: 5ead5fb21fbedee7ff8bc40198c67b853e1c36da
+MD5sum: 87e8d722548464788b64b98b8f82467c
 Description: GPIO library for Linux
  A library for handling GPIO operations on Linux systems.
  This package contains the runtime library.
 
 Package: libmsgpack-cxx-dev
-Version: 6.1.1-1~bookworm1
+Version: 6.1.1-1
 Architecture: all
 Maintainer: PiTrac Build System <build@pitrac.org>
 Homepage: https://msgpack.org/
 Depends: libboost-dev
 Priority: optional
 Section: libdevel
-Filename: pool/main/libm/libmsgpack-cxx-dev/libmsgpack-cxx-dev_6.1.1-1~bookworm1_all.deb
-Size: 192604
-SHA256: 58c79cfc071218a7465453f3aa600ee4fdf021342c49d7d18489402a71f8ff59
-SHA1: 47fd337a4236da25aefc8f90783cd86735006533
-MD5sum: dafa38bef092ae8dd1b87b6879c07146
+Filename: pool/main/libm/libmsgpack-cxx-dev/libmsgpack-cxx-dev_6.1.1-1_all.deb
+Size: 192592
+SHA256: 2fba81e8b54cb3f6472caaea18e3f80b59c735f4b3cde5ffe8c2e9902fbdceb7
+SHA1: 81c2acb01de91158e99a87a571d977135ce92594
+MD5sum: 9f795551e2763bd35841f8a14f0f8c4e
 Description: MessagePack implementation for C++ - development files
  MessagePack is an efficient binary serialization format. It lets you exchange
  data among multiple languages like JSON. But it's faster and smaller.
@@ -71,17 +71,17 @@ Description: MessagePack implementation for C++ - development files
  This package contains the C++ header-only library files.
 
 Package: libonnxruntime1.17.3
-Version: 1.17.3-xnnpack-verified~bookworm1
+Version: 1.17.3-xnnpack-verified
 Architecture: arm64
 Maintainer: PiTrac Build <build@pitrac.local>
 Depends: libc6, libstdc++6, libgcc-s1, libgomp1
 Priority: optional
 Section: libs
-Filename: pool/main/libo/libonnxruntime1.17.3/libonnxruntime1.17.3_1.17.3-xnnpack-verified~bookworm1_arm64.deb
-Size: 4305676
-SHA256: 0c5ce82ced304bc525df51fdf9dbfb62cb11e04e195e69c1c3a24522dfc5f335
-SHA1: a483d817ab85ea3ccbb71e8df5d49737c5a9395a
-MD5sum: fe6609d6d165cdaca7517da9e1b0d661
+Filename: pool/main/libo/libonnxruntime1.17.3/libonnxruntime1.17.3_1.17.3-xnnpack-verified_arm64.deb
+Size: 4305652
+SHA256: 6d6e0d31c218d538e2ead9f7a10884c88dca5c456b5dbb1537a78c68e15d9af4
+SHA1: e768692fb6c04b8f951f7500e248cef460e9b57e
+MD5sum: 5ae6d8bc69d45ab051afd41a7e6aaecf
 Description: ONNX Runtime with XNNPACK Provider (Verified)
  High-performance inference engine for ONNX models.
  This package includes the XNNPACK execution provider for
@@ -93,7 +93,7 @@ Conflicts: libonnxruntime1.17.3, libonnxruntime1.18.1, libonnxruntime1.23.0
 Replaces: libonnxruntime1.17.3, libonnxruntime1.18.1, libonnxruntime1.23.0
 
 Package: libopencv-dev
-Version: 4.11.0-1~bookworm1
+Version: 4.11.0-1
 Architecture: arm64
 Maintainer: PiTrac Build System <build@pitrac.org>
 Homepage: https://opencv.org/
@@ -102,11 +102,11 @@ Depends: libopencv4.11 (= 4.11.0-1), libgtk-3-dev, libavcodec-dev,
  libgstreamer-plugins-base1.0-dev
 Priority: optional
 Section: libdevel
-Filename: pool/main/libo/libopencv-dev/libopencv-dev_4.11.0-1~bookworm1_arm64.deb
-Size: 8590180
-SHA256: ced615e5a96b28b2d9f1f066e5643a797cddff3434ff3f20a4c9c5bf8bbb262e
-SHA1: 91f9437cc140ee9db43cb327d93db3ee89bbe81d
-MD5sum: f846d27afe22fa834cd14a9be8832ae0
+Filename: pool/main/libo/libopencv-dev/libopencv-dev_4.11.0-1_arm64.deb
+Size: 8590168
+SHA256: 607364a708ca1f821926c3313b31920aafc5dbeacd2717ba628bb953a850404e
+SHA1: dde3b473ef229f8ec8275361b886ae992ea994b4
+MD5sum: 3f76280b94564d55c7879089f0b72349
 Description: OpenCV development files
  OpenCV (Open Source Computer Vision Library) is a library of programming
  functions mainly aimed at real-time computer vision.
@@ -115,7 +115,7 @@ Description: OpenCV development files
  needed to build applications using OpenCV.
 
 Package: libopencv4.11
-Version: 4.11.0-1~bookworm1
+Version: 4.11.0-1
 Architecture: arm64
 Maintainer: PiTrac Build System <build@pitrac.org>
 Homepage: https://opencv.org/
@@ -125,11 +125,11 @@ Depends: libgtk-3-0, libavcodec59 | libavcodec58, libavformat59 | libavformat58,
  libjpeg62-turbo | libjpeg8, libpng16-16, libtiff6 | libtiff5
 Priority: optional
 Section: libs
-Filename: pool/main/libo/libopencv4.11/libopencv4.11_4.11.0-1~bookworm1_arm64.deb
-Size: 7805456
-SHA256: 0c4e92458309add9d20f29ce1a7ed4116350c67209e4b08d51b1be239de99646
-SHA1: f0c20f736fa0aca6f22d4c1123dd69c23955248c
-MD5sum: 02c1d5d05c7afd97513ec4bcb60be6ce
+Filename: pool/main/libo/libopencv4.11/libopencv4.11_4.11.0-1_arm64.deb
+Size: 7805444
+SHA256: 3b63276325b8bcb3c463ed2b305671176f5cef2c9c3b5cde1c1814c8bb59d51c
+SHA1: 66fddb97b3bad6b601e9e31f2635d418f1a548e1
+MD5sum: 4af80c36ddcfc0053d1ae548ea3b69e6
 Description: OpenCV runtime libraries
  OpenCV (Open Source Computer Vision Library) is a library of programming
  functions mainly aimed at real-time computer vision.
