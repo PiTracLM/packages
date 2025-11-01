@@ -1,13 +1,13 @@
 Origin: PiTrac
 Label: PiTrac Packages
 Codename: bookworm
-Date: Wed, 29 Oct 2025 16:12:48 UTC
+Date: Sat, 01 Nov 2025 21:16:04 UTC
 Architectures: arm64
 Components: main contrib non-free
 Description: PiTrac package repository for Debian/Raspbian Bookworm (Debian 12)
 MD5Sum:
- 9d22bfc11c0605dbea6da5b936f64239 5613 main/binary-arm64/Packages
- 183aa73fbdf42178c99289c45d022d38 2018 main/binary-arm64/Packages.gz
+ a1ec61a0d8d5e107192bf14e1c54a1a3 5473 main/binary-arm64/Packages
+ 0e104b5c29838a2f1c671f77c2086a68 2005 main/binary-arm64/Packages.gz
  9f0c8242e3e21a17fa8d2070fe295e8e 154 main/binary-arm64/Release
  d41d8cd98f00b204e9800998ecf8427e 0 main/source/Sources
  7029066c27ac6f5ef18d660d5741979a 20 main/source/Sources.gz
@@ -25,8 +25,8 @@ MD5Sum:
  7029066c27ac6f5ef18d660d5741979a 20 non-free/source/Sources.gz
  4de9c9e71d87de01975ba40eb2f1c3e5 159 non-free/source/Release
 SHA1:
- a9db5cf12e086239e11034f9b7a2756b0eac5211 5613 main/binary-arm64/Packages
- 751d548b0ab1ca25647ee97b7095a8268aaac861 2018 main/binary-arm64/Packages.gz
+ bcca8af38ef7cc4f0ba802fd1971b10d1e7e7476 5473 main/binary-arm64/Packages
+ 5295d00692e7120b1d02f803bcdf60acb67f9df0 2005 main/binary-arm64/Packages.gz
  e6536e9bae429b02fc178652dc78d1b5d55d5e21 154 main/binary-arm64/Release
  da39a3ee5e6b4b0d3255bfef95601890afd80709 0 main/source/Sources
  46c6643f07aa7f6bfe7118de926b86defc5087c4 20 main/source/Sources.gz
@@ -44,8 +44,8 @@ SHA1:
  46c6643f07aa7f6bfe7118de926b86defc5087c4 20 non-free/source/Sources.gz
  19bbde04e0684cdf3704c55e3acab592c5100e82 159 non-free/source/Release
 SHA256:
- 9f5593847162b71716b0c972de85efae5e542c5ceb5a9489e419d1220c40310d 5613 main/binary-arm64/Packages
- 7388014e79b88b0215acab5eb2cf2d32015cbf37271b6c6191b3ee4940f6c642 2018 main/binary-arm64/Packages.gz
+ 62b2160777ae6c31d6f4565f584a2409b99bc81a31a324ed2b018718ebd52275 5473 main/binary-arm64/Packages
+ 4e290d41e14e93d8f622f259e1a054b87d2776c36f63c21d9033519c38aad63b 2005 main/binary-arm64/Packages.gz
  7262444e62137a9179d32f1ebb0011234d6016a45dd6b7936768ac27281337ad 154 main/binary-arm64/Release
  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 main/source/Sources
  59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 main/source/Sources.gz
