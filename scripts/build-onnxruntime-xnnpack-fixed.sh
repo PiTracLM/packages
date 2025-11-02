@@ -183,9 +183,12 @@ ln -s "libonnxruntime.so.${LIB_VERSION}" "libonnxruntime.so.1"
 ln -s "libonnxruntime.so.1" "libonnxruntime.so"
 cd "$BUILD_DIR"
 
-# Copy headers
-find "$BUILD_DIR/onnxruntime/include" -name "*.h" \
-    -exec cp {} "$PKG_DIR/usr/include/onnxruntime/" \; 2>/dev/null || true
+# Copy headers (preserve directory structure)
+if [[ -d "$BUILD_DIR/onnxruntime/include/onnxruntime" ]]; then
+    cp -r "$BUILD_DIR/onnxruntime/include/onnxruntime/." "$PKG_DIR/usr/include/onnxruntime/"
+else
+    log_warn "Headers not found in expected location"
+fi
 
 # Create pkg-config file
 log_info "Creating pkg-config file..."

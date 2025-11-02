@@ -98,10 +98,10 @@ Depends: libc6, libstdc++6, libgcc-s1, libgomp1
 Priority: optional
 Section: libs
 Filename: pool/main/libo/libonnxruntime1.22.1/libonnxruntime1.22.1_1.22.1-xnnpack3~trixie1_arm64.deb
-Size: 6289360
-SHA256: 9019c8881f70466b621b35f24c596ade2199769d4deac4eb03bb929579ccdc36
-SHA1: 524bd45330344cfd636c3afaa74deb7c45089fdd
-MD5sum: 227861f028043e610dec4fd998948bab
+Size: 6293756
+SHA256: 850122fbf6038fc9b1454d14aa39b3f28f17903cc3a4ce0399efab0f9dd72d7e
+SHA1: f94e0f76dc7ae9ebb49afaa401b5353464297719
+MD5sum: f1c0e2020b1cd4fe06cbd064ec974104
 Description: ONNX Runtime with XNNPACK
  High-performance inference with XNNPACK provider.
  2-4x faster on Raspberry Pi 5.
