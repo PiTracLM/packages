@@ -173,6 +173,7 @@ PKG_DIR="$BUILD_DIR/libonnxruntime${LIB_VERSION}_${PACKAGE_VERSION}_arm64"
 
 mkdir -p "$PKG_DIR/DEBIAN"
 mkdir -p "$PKG_DIR/usr/lib/aarch64-linux-gnu"
+mkdir -p "$PKG_DIR/usr/lib/aarch64-linux-gnu/pkgconfig"
 mkdir -p "$PKG_DIR/usr/include/onnxruntime"
 
 # Copy library
@@ -185,6 +186,21 @@ cd "$BUILD_DIR"
 # Copy headers
 find "$BUILD_DIR/onnxruntime/include" -name "*.h" \
     -exec cp {} "$PKG_DIR/usr/include/onnxruntime/" \; 2>/dev/null || true
+
+# Create pkg-config file
+log_info "Creating pkg-config file..."
+cat > "$PKG_DIR/usr/lib/aarch64-linux-gnu/pkgconfig/onnxruntime.pc" << EOF
+prefix=/usr
+exec_prefix=\${prefix}
+libdir=\${exec_prefix}/lib/aarch64-linux-gnu
+includedir=\${prefix}/include
+
+Name: ONNX Runtime
+Description: ONNX Runtime - cross-platform inference and training accelerator
+Version: ${LIB_VERSION}
+Libs: -L\${libdir} -lonnxruntime
+Cflags: -I\${includedir}/onnxruntime
+EOF
 
 # Control file
 cat > "$PKG_DIR/DEBIAN/control" << EOF
