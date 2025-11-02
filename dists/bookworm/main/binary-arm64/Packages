@@ -32,6 +32,26 @@ Description: ActiveMQ-CPP development files
  ActiveMQ-CPP is a C++ client library for Apache ActiveMQ.
  This package contains the development files including headers and libraries.
 
+Package: liblgpio-dev
+Version: 0.2.2-1
+Architecture: arm64
+Maintainer: PiTrac Build System <build@pitrac.org>
+Depends: liblgpio1 (= 0.2.2-1)
+Homepage: http://abyz.me.uk/lg/
+Priority: optional
+Section: libdevel
+Filename: pool/main/libl/liblgpio-dev/liblgpio-dev_0.2.2-1_arm64.deb
+Size: 25092
+SHA256: bf2bb490b81af6efed0a3f2db74b58c78f6402bb0e50c264d9ab02a6017da315
+SHA1: ea0b1c68e1e642ea094929eac28043fc4a39a1cd
+MD5sum: 177f46582d8e15386518f94ca97c7844
+Description: GPIO library for Linux - development files
+ A library for handling GPIO operations on Linux systems.
+ This package contains the development files (headers and static libraries).
+Replaces: liblgpio-dev (<= 0.2.2-1~rpt99)
+Conflicts: liblgpio-dev (<= 0.2.2-1~rpt99)
+Provides: liblgpio-dev
+
 Package: liblgpio1
 Version: 0.2.2-1
 Architecture: arm64

@@ -4,13 +4,13 @@ Hash: SHA512
 Origin: PiTrac
 Label: PiTrac Packages
 Codename: bookworm
-Date: Sat, 01 Nov 2025 21:16:04 UTC
+Date: Sun, 02 Nov 2025 20:57:56 UTC
 Architectures: arm64
 Components: main contrib non-free
 Description: PiTrac package repository for Debian/Raspbian Bookworm (Debian 12)
 MD5Sum:
- a1ec61a0d8d5e107192bf14e1c54a1a3 5473 main/binary-arm64/Packages
- 0e104b5c29838a2f1c671f77c2086a68 2005 main/binary-arm64/Packages.gz
+ 55c4e22a81a3690ed2c4021d4bcc7757 6225 main/binary-arm64/Packages
+ d4074fcffddbabc7a35a8ac663922d03 2175 main/binary-arm64/Packages.gz
  9f0c8242e3e21a17fa8d2070fe295e8e 154 main/binary-arm64/Release
  d41d8cd98f00b204e9800998ecf8427e 0 main/source/Sources
  7029066c27ac6f5ef18d660d5741979a 20 main/source/Sources.gz
@@ -28,8 +28,8 @@ MD5Sum:
  7029066c27ac6f5ef18d660d5741979a 20 non-free/source/Sources.gz
  4de9c9e71d87de01975ba40eb2f1c3e5 159 non-free/source/Release
 SHA1:
- bcca8af38ef7cc4f0ba802fd1971b10d1e7e7476 5473 main/binary-arm64/Packages
- 5295d00692e7120b1d02f803bcdf60acb67f9df0 2005 main/binary-arm64/Packages.gz
+ 74da89744c358d5ef946b6a361c3f7bdae61909e 6225 main/binary-arm64/Packages
+ e5e7c5fbe3c6ef6ed3d11590c22a97e3966447ad 2175 main/binary-arm64/Packages.gz
  e6536e9bae429b02fc178652dc78d1b5d55d5e21 154 main/binary-arm64/Release
  da39a3ee5e6b4b0d3255bfef95601890afd80709 0 main/source/Sources
  46c6643f07aa7f6bfe7118de926b86defc5087c4 20 main/source/Sources.gz
@@ -47,8 +47,8 @@ SHA1:
  46c6643f07aa7f6bfe7118de926b86defc5087c4 20 non-free/source/Sources.gz
  19bbde04e0684cdf3704c55e3acab592c5100e82 159 non-free/source/Release
 SHA256:
- 62b2160777ae6c31d6f4565f584a2409b99bc81a31a324ed2b018718ebd52275 5473 main/binary-arm64/Packages
- 4e290d41e14e93d8f622f259e1a054b87d2776c36f63c21d9033519c38aad63b 2005 main/binary-arm64/Packages.gz
+ 00f2fbe2b84759209856bf74a39f589b7203af2006d5c82ff4a422875369c79e 6225 main/binary-arm64/Packages
+ f80c810dd2b96a373123554ca81efb02df5850a91be354fda05ee96bc998c8e1 2175 main/binary-arm64/Packages.gz
  7262444e62137a9179d32f1ebb0011234d6016a45dd6b7936768ac27281337ad 154 main/binary-arm64/Release
  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 main/source/Sources
  59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 main/source/Sources.gz
@@ -67,17 +67,17 @@ SHA256:
  b880a5b0f4dcfecf20ed1e0730f71dcc4615f273060dc4e4699c12a4fb12e67d 159 non-free/source/Release
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCgAdFiEEyZYIvEEP6x7Or8pCXnlcBqs6YMwFAmkGeJQACgkQXnlcBqs6
-YMz4eQ/8CD6NCGv9Z1NmLbr45cW4F1A7om2uvyifekcd/Mb9o4fV7QilffP7a07m
-p7+/XoUCEaY2ww8/8KlQ6hRgzLfkdMzS8GhpvCOcYotqZc5WwkceOU/njXQAkiJE
-rMRUAwm8+zrVQvE9Au9u62unKLCsdq5kzNwG51BncXzVtzHAQb51/ynaTF0mMrOA
-tSvJYNPxcxwGWPFDOdumxIzXFkGXQSKUVDwt2qAtU9D01YioDNDDAqg7KsQ60CDE
-HoXYju/eE+7s7jQn8vBa8tiP0DrkhaFkKakBwocjOkJad18KOLO/63BrDkRZLGU1
-svYjhEoOeZjrM+EuDAiSWX32foMU3i2Q92tJH1MBR18aJlGfEamGmpr5a4vqWOxr
-zfD9rKSqBQNDA3XubPxFD8xRStuKhCQuh4WvGFrrG249ckzOqeb6h+qGgdnCORWG
-MHoiSnktYWUvXui4mI0HhGN7EshwhNS87+yp+vE0LyxJeGAfgV8qyqklPy6mFBBW
-q8rAbLU8n55wKhTpWmuWW2J2tXBCApN1zXY0iJZV1+NLKW3slKnpypeJAKKA2hT9
-Z8mryoxeuC/9tHXnU+LL82xzkKrQiSXXgLF8W0igYZG3SuTbZIlZdRtvzVNyvoae
-0brDzwZiTztSj+JGc4FbGbgEwOvFMyQ6N3e6AsCYgrD4geXW3RI=
-=OYf7
+iQIzBAEBCgAdFiEEyZYIvEEP6x7Or8pCXnlcBqs6YMwFAmkHxdQACgkQXnlcBqs6
+YMy0EQ//X52UdxejeupWCiH8HLFjyCCiPdolmG23ldE5hH2T3+rzwhUAnv6ZNxQ7
+xKxw4UQ4COFRcHZakPIpf5Q2NHHscWGlN7iavGtEjHHB3uWD262EzG3+DTpVAL9i
+VbN7C6DgJrSdRQNbAidWvw5aaq7z5QaD2dv0ri1UOd2CxZhYNRNKQvvWTzkAEfO7
+UlHBpkM1A6rviNnNKmkLKZbWvKQKgapm7Vy+FLGmm2+x0cXCOZnOc15Wc12CqgcR
+hcXhj+zOs+Ukt3CMTs27+0mHHqEu9sQu754zSFW/2Tu2glvklCiCF14yyhdaF709
+61qTDz+gBkjIOh/foCnMeZn1Opzdttl48PRTs6pqGZ0EQZ08VfrttdvwbiM+nxE/
+veuhDB0dMnlkUvjISig7RbGD8I4Tw0/xc4oyQeIoO4AF82L/tkngayX+NDVccTZe
+NsROyDUAQddqczpb1u3791ygOOnhdHzSb2y0p9NiLGBMdwoazvalEmGFEwtVEALb
+wtDfRnGPy4RQg0Pnv8qRyIl65stjtWnURQyU94xN4fbK3tFJ/+s6x7JwxfEbSJss
+W4I1zi/l3jZrlb3bK6VC1EmZlo0Q9rxw+4be1pb+tAkF8qZ9Jp7J/ssqYrG5gilI
+iiXVcNh1PtXIVnb1Z4EE6PLPY14uMpCtxDh2F9AeU08b1OIOXbs=
+=mFzE
 -----END PGP SIGNATURE-----
