@@ -4,7 +4,7 @@ Hash: SHA512
 Origin: PiTrac
 Label: PiTrac Packages
 Codename: bookworm
-Date: Sat, 01 Nov 2025 20:07:07 UTC
+Date: Sat, 01 Nov 2025 21:16:04 UTC
 Architectures: arm64
 Components: main contrib non-free
 Description: PiTrac package repository for Debian/Raspbian Bookworm (Debian 12)
@@ -67,17 +67,17 @@ SHA256:
  b880a5b0f4dcfecf20ed1e0730f71dcc4615f273060dc4e4699c12a4fb12e67d 159 non-free/source/Release
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCgAdFiEEyZYIvEEP6x7Or8pCXnlcBqs6YMwFAmkGaGsACgkQXnlcBqs6
-YMyAig/8DFIrlOr656EfPyDStqyt2xBUrtCiYU6rLAhp+5LWYwuBejr3huCoa5Kq
-KQeti/sXnYtSHb/RdlBQT44g66KfQET+2+6ly+TRriLD77U0o39Z+829FPJCX8tw
-lZWN+46LinHak/LIQMlxoZUq8gD+3cQ7RaeGa5uoJZzqNQ747S/35G0l8DTpGwZ8
-cOaqLpAFuXmzWMAQD411ye5AQkYTocXNOHv2WAY9GJnMMbt0CSOq1TmHPkwI8K3M
-wA1W3nD9Po+JDPVKHJJrpkpgGhPt0TScGtW93uzvMGgKw87blG7OiK8zjdcEF+2Q
-5zYp9psT4p3dKwex1iWIu4h+omPSY964zHKJxRuje/UjEEOan6udkE5GLJhDUVG9
-/aJZlwkDqZH8bnoXnXWEmPu+usR/+WtjC3u5luuzlGeL45rpL/A7PIB7g6csmO71
-hAiaiKhsTKaJWbEoQsXPJ059tJd/dnpZaXKo4pSTNsio2UYEK4UvLoR25oMOXzxt
-S4DNYLq4hLzomXR8ioyYkQCL3rt8N/+tdTBNwAi+K9vJ3Tu6d8Lp72Ibp8Hm//C2
-bTxugM7zX0StvJZlivFdB1tTm4Zv2OExpc/Y4bhtcbZjOW/+w1k30Gi9DfSekqm3
-0O7UQUTnq4seN6/fuEEIEXeknPZebdgmp1C6BCdiYk+klrpHOb0=
-=GnT5
+iQIzBAEBCgAdFiEEyZYIvEEP6x7Or8pCXnlcBqs6YMwFAmkGeJQACgkQXnlcBqs6
+YMz4eQ/8CD6NCGv9Z1NmLbr45cW4F1A7om2uvyifekcd/Mb9o4fV7QilffP7a07m
+p7+/XoUCEaY2ww8/8KlQ6hRgzLfkdMzS8GhpvCOcYotqZc5WwkceOU/njXQAkiJE
+rMRUAwm8+zrVQvE9Au9u62unKLCsdq5kzNwG51BncXzVtzHAQb51/ynaTF0mMrOA
+tSvJYNPxcxwGWPFDOdumxIzXFkGXQSKUVDwt2qAtU9D01YioDNDDAqg7KsQ60CDE
+HoXYju/eE+7s7jQn8vBa8tiP0DrkhaFkKakBwocjOkJad18KOLO/63BrDkRZLGU1
+svYjhEoOeZjrM+EuDAiSWX32foMU3i2Q92tJH1MBR18aJlGfEamGmpr5a4vqWOxr
+zfD9rKSqBQNDA3XubPxFD8xRStuKhCQuh4WvGFrrG249ckzOqeb6h+qGgdnCORWG
+MHoiSnktYWUvXui4mI0HhGN7EshwhNS87+yp+vE0LyxJeGAfgV8qyqklPy6mFBBW
+q8rAbLU8n55wKhTpWmuWW2J2tXBCApN1zXY0iJZV1+NLKW3slKnpypeJAKKA2hT9
+Z8mryoxeuC/9tHXnU+LL82xzkKrQiSXXgLF8W0igYZG3SuTbZIlZdRtvzVNyvoae
+0brDzwZiTztSj+JGc4FbGbgEwOvFMyQ6N3e6AsCYgrD4geXW3RI=
+=OYf7
 -----END PGP SIGNATURE-----
