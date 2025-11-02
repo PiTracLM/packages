@@ -9,9 +9,12 @@ set -euo pipefail
 
 # Version configuration
 OPENCV_VERSION="4.11.0"
-PACKAGE_VERSION="4.11.0-1"
+BASE_VERSION="4.11.0-1"
 DEBIAN_ARCH="arm64"
 DISTRO="${1:-bookworm}"
+
+# Add distribution suffix to version
+PACKAGE_VERSION="${BASE_VERSION}~${DISTRO}1"
 
 # Color output
 RED='\033[0;31m'
@@ -335,7 +338,10 @@ EOF
     dpkg-deb --build --root-owner-group "$PKG_DEV_DIR"
 
     # Move packages to output directory (distro-specific)
-    BASE_OUTPUT_DIR="${OUTPUT_DIR:-$HOME/pitrac-packages}"
+    # Default to packages repo build directory structure
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+    BASE_OUTPUT_DIR="${OUTPUT_DIR:-$REPO_ROOT/build/debs}"
     OUTPUT_DIR="$BASE_OUTPUT_DIR/$DISTRO/$DEBIAN_ARCH"
     mkdir -p "$OUTPUT_DIR"
     mv "$BUILD_DIR"/*.deb "$OUTPUT_DIR/"
