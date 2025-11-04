@@ -1,33 +1,33 @@
 Package: libactivemq-cpp
-Version: 3.9.5-1
+Version: 3.9.5-1~bookworm1
 Architecture: arm64
 Maintainer: PiTrac Build System <build@pitrac.org>
 Homepage: https://activemq.apache.org/components/cms/
 Depends: libapr1, libaprutil1, libssl3
 Priority: optional
 Section: libs
-Filename: pool/main/liba/libactivemq-cpp/libactivemq-cpp_3.9.5-1_arm64.deb
-Size: 5927244
-SHA256: 52bb25886a697a66f17e2706469f2a75a16d93f16680d4bf012ed939cfa1817e
-SHA1: 6c96eaa5a4820ae785e538c35658493971d2aebc
-MD5sum: 945fdf11c24517d2aaa7b859c511f681
+Filename: pool/main/liba/libactivemq-cpp/libactivemq-cpp_3.9.5-1~bookworm1_arm64.deb
+Size: 5927252
+SHA256: a5c2892af9543e9a9ef1f535fc205999dc2c3622c066d24403c9b50b3015be12
+SHA1: 24427142f871da00c50194626b9ecee904345bf4
+MD5sum: 3f7d712c8970f70cbe8e4ae44022116b
 Description: ActiveMQ-CPP runtime libraries
  ActiveMQ-CPP is a C++ client library for Apache ActiveMQ.
  This package contains the runtime libraries.
 
 Package: libactivemq-cpp-dev
-Version: 3.9.5-1
+Version: 3.9.5-1~bookworm1
 Architecture: arm64
 Maintainer: PiTrac Build System <build@pitrac.org>
 Homepage: https://activemq.apache.org/components/cms/
-Depends: libactivemq-cpp (= 3.9.5-1), libapr1-dev, libaprutil1-dev, libssl-dev
+Depends: libactivemq-cpp (= 3.9.5-1~bookworm1), libapr1-dev, libaprutil1-dev, libssl-dev
 Priority: optional
 Section: libdevel
-Filename: pool/main/liba/libactivemq-cpp-dev/libactivemq-cpp-dev_3.9.5-1_arm64.deb
-Size: 3404636
-SHA256: 9894501b6f03a61ce616589bd2fc791d1647a590846af4e3ed89a302f7c00958
-SHA1: 11c497885b6f5a7b86495eae59192e95a8a71b51
-MD5sum: 92be3dc22e91eb318e10b018ddc2ee35
+Filename: pool/main/liba/libactivemq-cpp-dev/libactivemq-cpp-dev_3.9.5-1~bookworm1_arm64.deb
+Size: 3404648
+SHA256: d43f7fdd2a02da2768c22b1243e46cf9c003d69f6da7512a401b1f13d30db191
+SHA1: 78257daefe8a563161a87a6d1719deb57442f423
+MD5sum: f5a04aeb7a9d38f067c68fd281e7a49b
 Description: ActiveMQ-CPP development files
  ActiveMQ-CPP is a C++ client library for Apache ActiveMQ.
  This package contains the development files including headers and libraries.

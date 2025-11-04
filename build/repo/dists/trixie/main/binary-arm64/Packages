@@ -3,14 +3,14 @@ Version: 3.9.5-1~trixie1
 Architecture: arm64
 Maintainer: PiTrac Build System <build@pitrac.org>
 Homepage: https://activemq.apache.org/components/cms/
-Depends: libapr1 | libapr1t64, libaprutil1 | libaprutil1t64, libssl3 | libssl3t64
+Depends: libapr1, libaprutil1, libssl3
 Priority: optional
 Section: libs
 Filename: pool/main/liba/libactivemq-cpp/libactivemq-cpp_3.9.5-1~trixie1_arm64.deb
-Size: 6026644
-SHA256: f1df3c1c4a9c6c7d08450dc5e7e73665b24ff016daf98a5bbba69988e66d840e
-SHA1: 78714b154162c3d67ca56ea3318fba3096c35038
-MD5sum: e533950ea9843c6d3681f1f912005184
+Size: 5927260
+SHA256: 05de53948fb96f181efafad9add69198277c3d8ad2b32d14cf609d4645970877
+SHA1: 19d9c96d8a5b07c610269ece7526577a3993694c
+MD5sum: a74de21649a11573b9ebdc5b2660e61b
 Description: ActiveMQ-CPP runtime libraries
  ActiveMQ-CPP is a C++ client library for Apache ActiveMQ.
  This package contains the runtime libraries.
@@ -20,14 +20,14 @@ Version: 3.9.5-1~trixie1
 Architecture: arm64
 Maintainer: PiTrac Build System <build@pitrac.org>
 Homepage: https://activemq.apache.org/components/cms/
-Depends: libactivemq-cpp (= 3.9.5-1), libapr1-dev, libaprutil1-dev, libssl-dev
+Depends: libactivemq-cpp (= 3.9.5-1~trixie1), libapr1-dev, libaprutil1-dev, libssl-dev
 Priority: optional
 Section: libdevel
 Filename: pool/main/liba/libactivemq-cpp-dev/libactivemq-cpp-dev_3.9.5-1~trixie1_arm64.deb
-Size: 3461716
-SHA256: 41191b364db3d24cd31aa0c3704c71b6689203d10bc9510fe1dab83d280de427
-SHA1: 44a305f03330337ba14bb7eb8748c3fbf187cd65
-MD5sum: 4b4c2c730d7a6464bc351a77b4a2f3d3
+Size: 3404644
+SHA256: 88f7bc95bafcdc38c32b215c4e72c3420d53fb9a5da70d0bad4226fd058fe9d4
+SHA1: 753fe464c2ac61a3306596f9fc6931e34c09a014
+MD5sum: 31a27f465d23c34f8b2073874219df8b
 Description: ActiveMQ-CPP development files
  ActiveMQ-CPP is a C++ client library for Apache ActiveMQ.
  This package contains the development files including headers and libraries.
@@ -130,48 +130,4 @@ Description: ONNX Runtime with XNNPACK
 Provides: libonnxruntime
 Conflicts: libonnxruntime1.17.3, libonnxruntime1.18.1, libonnxruntime1.23.0
 Replaces: libonnxruntime1.17.3, libonnxruntime1.18.1, libonnxruntime1.23.0
-
-Package: libopencv-dev
-Version: 4.11.0-1~trixie1
-Architecture: arm64
-Maintainer: PiTrac Build System <build@pitrac.org>
-Homepage: https://opencv.org/
-Depends: libopencv4.11 (= 4.11.0-1~trixie1), libgtk-3-dev, libavcodec-dev,
- libavformat-dev, libswscale-dev, libtbb-dev, libgstreamer1.0-dev,
- libgstreamer-plugins-base1.0-dev
-Priority: optional
-Section: libdevel
-Filename: pool/main/libo/libopencv-dev/libopencv-dev_4.11.0-1~trixie1_arm64.deb
-Size: 8590184
-SHA256: ace2d3fb5e5d88ac3934d79e81601d9768f521791c7bf4a1c240aa78237cd313
-SHA1: 882186528f7ec87d0413d5770acda21beacb5432
-MD5sum: b3fd9054545c785a6d72f8252098b44e
-Description: OpenCV development files
- OpenCV (Open Source Computer Vision Library) is a library of programming
- functions mainly aimed at real-time computer vision.
- .
- This package contains the development files including headers and libraries
- needed to build applications using OpenCV.
-
-Package: libopencv4.11
-Version: 4.11.0-1~trixie1
-Architecture: arm64
-Maintainer: PiTrac Build System <build@pitrac.org>
-Homepage: https://opencv.org/
-Depends: libgtk-3-0, libavcodec59 | libavcodec58, libavformat59 | libavformat58,
- libswscale6 | libswscale5, libtbb12, libgstreamer1.0-0,
- libgstreamer-plugins-base1.0-0, libopenexr-3-1-30 | libopenexr25,
- libjpeg62-turbo | libjpeg8, libpng16-16, libtiff6 | libtiff5
-Priority: optional
-Section: libs
-Filename: pool/main/libo/libopencv4.11/libopencv4.11_4.11.0-1~trixie1_arm64.deb
-Size: 7805452
-SHA256: 5145f311a542c7d62c459b99969d66952b40277ff4ab580c66c7fa72a7173fae
-SHA1: 639f3a76f449c5270c7ffbdd43e29e41a6302257
-MD5sum: 40e03948abd442337785e0098fabf03c
-Description: OpenCV runtime libraries
- OpenCV (Open Source Computer Vision Library) is a library of programming
- functions mainly aimed at real-time computer vision.
- .
- This package contains the runtime libraries for OpenCV 4.11.0.
 
