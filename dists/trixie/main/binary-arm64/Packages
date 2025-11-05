@@ -72,18 +72,18 @@ Conflicts: liblgpio1 (<= 0.2.2-1~rpt99)
 Provides: liblgpio1
 
 Package: libmsgpack-cxx-dev
-Version: 6.1.1-1~trixie1
+Version: 1:7.0.0-2~trixie1
 Architecture: all
 Maintainer: PiTrac Build System <build@pitrac.org>
 Homepage: https://msgpack.org/
 Depends: libboost-dev
 Priority: optional
 Section: libdevel
-Filename: pool/main/libm/libmsgpack-cxx-dev/libmsgpack-cxx-dev_6.1.1-1~trixie1_all.deb
-Size: 192208
-SHA256: 37ba507edf5c4a5cd7fface18eda4d5be2fed7bfe43a8afdbda05f471c4523df
-SHA1: f96509bb907b9a644c33f8397d03097d2163cf12
-MD5sum: b43517f6ec05ac1b2aa6a0f3712b94ec
+Filename: pool/main/libm/libmsgpack-cxx-dev/libmsgpack-cxx-dev_7.0.0-2~trixie1_all.deb
+Size: 192624
+SHA256: 502f7850783255edcd84674f08d9b8b0a7f856f9deb8eafce3fd7d45173a1a17
+SHA1: d1388c762cb663f661758d9820d9a7ecce5b0b89
+MD5sum: d879be1b2b3a6b53bc067edbe285b9a2
 Description: MessagePack implementation for C++ - development files
  MessagePack is an efficient binary serialization format. It lets you exchange
  data among multiple languages like JSON. But it's faster and smaller.

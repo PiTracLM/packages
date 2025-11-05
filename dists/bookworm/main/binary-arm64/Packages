@@ -72,18 +72,18 @@ Description: GPIO library for Linux
  This package contains the runtime library.
 
 Package: libmsgpack-cxx-dev
-Version: 6.1.1-1
+Version: 1:7.0.0-2~bookworm1
 Architecture: all
 Maintainer: PiTrac Build System <build@pitrac.org>
 Homepage: https://msgpack.org/
 Depends: libboost-dev
 Priority: optional
 Section: libdevel
-Filename: pool/main/libm/libmsgpack-cxx-dev/libmsgpack-cxx-dev_6.1.1-1_all.deb
-Size: 192592
-SHA256: 2fba81e8b54cb3f6472caaea18e3f80b59c735f4b3cde5ffe8c2e9902fbdceb7
-SHA1: 81c2acb01de91158e99a87a571d977135ce92594
-MD5sum: 9f795551e2763bd35841f8a14f0f8c4e
+Filename: pool/main/libm/libmsgpack-cxx-dev/libmsgpack-cxx-dev_7.0.0-2~bookworm1_all.deb
+Size: 193324
+SHA256: 4b44bdd2cd2953ba812e7449c3bfe097fc1e49ade60ce940caf78017787c6e99
+SHA1: 45b2d71b2372f69bd7897cb273c3d9d7095dd121
+MD5sum: 638eedf47493793fda33013168993901
 Description: MessagePack implementation for C++ - development files
  MessagePack is an efficient binary serialization format. It lets you exchange
  data among multiple languages like JSON. But it's faster and smaller.

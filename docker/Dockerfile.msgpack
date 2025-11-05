@@ -5,7 +5,7 @@ ARG DEBIAN_ARCH=arm64
 FROM --platform=linux/arm64 debian:${DEBIAN_DISTRO}-slim AS arm64-base
 FROM ${DEBIAN_ARCH}-base
 
-ARG PACKAGE_VERSION=6.1.1-1
+ARG PACKAGE_VERSION=1:7.0.0-2
 ARG DEBIAN_ARCH
 ARG DEBIAN_DISTRO
 
@@ -21,9 +21,9 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /build
 
 # Download msgpack-c++ source (header-only library)
-RUN wget -q https://github.com/msgpack/msgpack-c/archive/refs/heads/cpp_master.zip && \
-    unzip -q cpp_master.zip && \
-    mv msgpack-c-cpp_master msgpack-cxx
+RUN wget -q https://github.com/msgpack/msgpack-c/archive/refs/tags/cpp-7.0.0.zip && \
+    unzip -q cpp-7.0.0.zip && \
+    mv msgpack-c-cpp-7.0.0 msgpack-cxx
 
 # Configure and build with Pi5 optimizations
 # Removed -flto flag due to cross-compilation segfault issues on ARM64
@@ -54,7 +54,7 @@ RUN printf '%s\n' \
         '' \
         'Name: msgpack-cxx' \
         'Description: MessagePack for C++' \
-        'Version: 6.1.1' \
+        'Version: 7.0.0' \
         'Cflags: -I${includedir}' \
         > pkg/usr/lib/pkgconfig/msgpack-cxx.pc
 

@@ -54,7 +54,7 @@ packages/                         # This repository
 The packages must be built in this order due to dependencies:
 
 ```
-lgpio (0.2.2) → msgpack (6.1.1) → activemq (3.9.5) → opencv (4.11.0) → pitrac
+lgpio (0.2.2) → msgpack (7.0.0) → activemq (3.9.5) → opencv (4.11.0) → pitrac
          ↓              ↓                ↓                  ↓              ↓
    GPIO access    Serialization    Message Queue    Computer vision  Application
                                                             ↓
@@ -504,12 +504,14 @@ Lightweight GPIO library for Raspberry Pi:
 - No sudo required with proper permissions
 - Packages: `liblgpio1` (runtime), `liblgpio-dev` (headers)
 
-### msgpack (6.1.1-1)
+### msgpack (1:7.0.0-2)
 
 High-performance binary serialization:
 - Header-only C++ library
 - Zero-copy operations
 - Smaller than JSON, faster than Protocol Buffers
+- Epoch prefix ensures priority over Debian packages
+- Includes pkg-config file (missing in official Debian package)
 - Package: `libmsgpack-cxx-dev`
 
 ### opencv (4.11.0-1)
