@@ -6,8 +6,8 @@ Architectures: arm64
 Components: main contrib non-free
 Description: PiTrac package repository for Debian/Raspbian Trixie (Debian 13)
 MD5Sum:
- 0adac9e5ecaf4cb16485bf6986fc8a7b 6370 main/binary-arm64/Packages
- e26c027d27a3da56fa3d32d871f4555c 2146 main/binary-arm64/Packages.gz
+ 9a19d43dbfc95e26df23eb538181cde3 6335 main/binary-arm64/Packages
+ 3dd3762ceb94059c8db67a19b7e6fa4d 2127 main/binary-arm64/Packages.gz
  0e90e443c5cfb1de136873897f18e0ec 152 main/binary-arm64/Release
  d41d8cd98f00b204e9800998ecf8427e 0 main/source/Sources
  7029066c27ac6f5ef18d660d5741979a 20 main/source/Sources.gz
@@ -25,8 +25,8 @@ MD5Sum:
  7029066c27ac6f5ef18d660d5741979a 20 non-free/source/Sources.gz
  12caff4c427d9b4335a89c87b00e853b 157 non-free/source/Release
 SHA1:
- 9f1d3aa4af166bba26e12dfa4a3f668044f177a2 6370 main/binary-arm64/Packages
- c6516f5a742613a392ea3e9a34fe544a11c038e0 2146 main/binary-arm64/Packages.gz
+ 4c016980740a9e97480c3c5973717ab8320711f6 6335 main/binary-arm64/Packages
+ 5969c8f0b9f2c79185b3cdb4d8ebc43e65db667a 2127 main/binary-arm64/Packages.gz
  176b199254c844b03ac003cf6e31333c05ccdbbe 152 main/binary-arm64/Release
  da39a3ee5e6b4b0d3255bfef95601890afd80709 0 main/source/Sources
  46c6643f07aa7f6bfe7118de926b86defc5087c4 20 main/source/Sources.gz
@@ -44,8 +44,8 @@ SHA1:
  46c6643f07aa7f6bfe7118de926b86defc5087c4 20 non-free/source/Sources.gz
  69f890e0342d2eaf2c96eb0aac77b7db295cd0dd 157 non-free/source/Release
 SHA256:
- 816a9e13fc417ce573b61589cb606f5f39b4afb94e0faba5a6cb0bdb6b738d48 6370 main/binary-arm64/Packages
- 1fac072119e21b152fccbb3def1febffe5a0785f07e8e9f709d7c8694ea68d6d 2146 main/binary-arm64/Packages.gz
+ 0f8154711ac7488ac471d3c3369724badea6e8e76a394f9155df29fe7721b892 6335 main/binary-arm64/Packages
+ ca3891380b0d823e04a6c220c26c6cff5be70b1e603d2994895cb892088e2b6e 2127 main/binary-arm64/Packages.gz
  0ce2047036bc7370988a386649fa445cfa0b7f9e8c754e40e1502d766f5bac0f 152 main/binary-arm64/Release
  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 main/source/Sources
  59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 main/source/Sources.gz
