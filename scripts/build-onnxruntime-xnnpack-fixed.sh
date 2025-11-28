@@ -123,6 +123,7 @@ BUILD_FLAGS=(
     "--skip_tests"
     "--use_xnnpack"
     "--allow_running_as_root"
+    "--compile_no_warning_as_error"
 )
 
 # Pi 5 (Cortex-A76) optimization flags - ALWAYS apply for arm64 builds
@@ -130,30 +131,27 @@ BUILD_FLAGS=(
 # Note: Native builds on Pi5 will auto-detect, but we force them for consistency
 # IMPORTANT: Force C++17 because ONNX Runtime 1.17.3 is incompatible with GCC 14's C++20 defaults
 PI5_CFLAGS="-march=armv8.2-a+fp16+dotprod -mtune=cortex-a76 -O3 -ftree-vectorize -ffast-math"
-PI5_CXXFLAGS="${PI5_CFLAGS} -std=c++17"
 
 if grep -q "Raspberry Pi 5" /proc/cpuinfo 2>/dev/null; then
     # Native Pi5 build - full optimization
     BUILD_FLAGS+=(
-        "--cmake_extra_defines"
-        "CMAKE_CXX_FLAGS=${PI5_CXXFLAGS}"
-        "--cmake_extra_defines"
-        "CMAKE_C_FLAGS=${PI5_CFLAGS}"
+        "--cmake_extra_defines" "CMAKE_CXX_FLAGS=${PI5_CFLAGS}"
+        "--cmake_extra_defines" "CMAKE_C_FLAGS=${PI5_CFLAGS}"
+        "--cmake_extra_defines" "CMAKE_CXX_STANDARD=17"
     )
     log_info "Detected Pi 5 - using full Cortex-A76 optimizations"
     log_info "CFLAGS: ${PI5_CFLAGS}"
-    log_info "CXXFLAGS: ${PI5_CXXFLAGS}"
+    log_info "CMAKE_CXX_STANDARD: 17"
 elif [ "$(uname -m)" = "aarch64" ]; then
     # Generic ARM64 build (e.g., Docker/QEMU) - still use Pi5 flags for target
     BUILD_FLAGS+=(
-        "--cmake_extra_defines"
-        "CMAKE_CXX_FLAGS=${PI5_CXXFLAGS}"
-        "--cmake_extra_defines"
-        "CMAKE_C_FLAGS=${PI5_CFLAGS}"
+        "--cmake_extra_defines" "CMAKE_CXX_FLAGS=${PI5_CFLAGS}"
+        "--cmake_extra_defines" "CMAKE_C_FLAGS=${PI5_CFLAGS}"
+        "--cmake_extra_defines" "CMAKE_CXX_STANDARD=17"
     )
     log_info "ARM64 build - forcing Pi5 (Cortex-A76) optimizations for target"
     log_info "CFLAGS: ${PI5_CFLAGS}"
-    log_info "CXXFLAGS: ${PI5_CXXFLAGS}"
+    log_info "CMAKE_CXX_STANDARD: 17"
 fi
 
 log_info "Starting build (60-90 minutes)..."
