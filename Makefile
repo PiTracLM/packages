@@ -19,15 +19,18 @@ DISTROS := bookworm trixie
 # Base version configuration (same upstream version across distros)
 # Note: Distribution suffixes (~bookworm1 or ~trixie1) are automatically appended by build-package.sh
 LGPIO_VERSION := 0.2.2-1
-MSGPACK_VERSION := 6.1.1-1
+MSGPACK_VERSION := 7.0.0-2
 ACTIVEMQ_VERSION := 3.9.5-1
-OPENCV_VERSION := 4.11.0-1
+OPENCV_VERSION := 4.12.0-1
 PITRAC_VERSION := $(shell date +%Y.%m.%d)-1
 
 # Distro-specific base versions (when upstream differs)
 # Note: Distribution suffixes are automatically appended by build-package.sh
+# ONNX Runtime 1.17.3 is used for BOTH distros - 1.22.x/1.23.x have Pi5 issues
+# See: https://github.com/microsoft/onnxruntime/issues/26300 (1.23.x Trixie broken)
+# See: https://github.com/microsoft/onnxruntime/issues/25824 (FP16 Cast overhead)
 BOOKWORM_ONNXRUNTIME_VERSION := 1.17.3-1
-TRIXIE_ONNXRUNTIME_VERSION := 1.22.1-1
+TRIXIE_ONNXRUNTIME_VERSION := 1.17.3-1
 
 # PiTrac source repository configuration
 PITRAC_REPO ?= https://github.com/jamespilgrim/PiTrac.git

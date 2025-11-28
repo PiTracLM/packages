@@ -108,7 +108,7 @@ fi
 log_info "System memory: $(free -h | grep ^Mem | awk '{print $2}') total"
 log_info "Using $NUM_JOBS parallel job(s) for stability"
 
-# Build flags - minimal and focused
+# Build flags - optimized for Pi5 YOLO inference
 BUILD_FLAGS=(
     "--config" "Release"
     "--build_shared_lib"
@@ -118,13 +118,31 @@ BUILD_FLAGS=(
     "--allow_running_as_root"
 )
 
-# Add ARM optimizations if on Pi 5
+# Pi 5 (Cortex-A76) optimization flags - ALWAYS apply for arm64 builds
+# These flags are critical for YOLO inference performance
+# Note: Native builds on Pi5 will auto-detect, but we force them for consistency
 if grep -q "Raspberry Pi 5" /proc/cpuinfo 2>/dev/null; then
+    # Native Pi5 build - full optimization
+    PI5_CFLAGS="-march=armv8.2-a+fp16+dotprod -mtune=cortex-a76 -O3 -ftree-vectorize -ffast-math"
     BUILD_FLAGS+=(
         "--cmake_extra_defines"
-        "CMAKE_CXX_FLAGS=-march=armv8.2-a+fp16+dotprod -mtune=cortex-a76"
+        "CMAKE_CXX_FLAGS=${PI5_CFLAGS}"
+        "--cmake_extra_defines"
+        "CMAKE_C_FLAGS=${PI5_CFLAGS}"
     )
-    log_info "Detected Pi 5 - using Cortex-A76 optimizations"
+    log_info "Detected Pi 5 - using full Cortex-A76 optimizations"
+    log_info "CFLAGS: ${PI5_CFLAGS}"
+elif [ "$(uname -m)" = "aarch64" ]; then
+    # Generic ARM64 build (e.g., Docker/QEMU) - still use Pi5 flags for target
+    PI5_CFLAGS="-march=armv8.2-a+fp16+dotprod -mtune=cortex-a76 -O3 -ftree-vectorize -ffast-math"
+    BUILD_FLAGS+=(
+        "--cmake_extra_defines"
+        "CMAKE_CXX_FLAGS=${PI5_CFLAGS}"
+        "--cmake_extra_defines"
+        "CMAKE_C_FLAGS=${PI5_CFLAGS}"
+    )
+    log_info "ARM64 build - forcing Pi5 (Cortex-A76) optimizations for target"
+    log_info "CFLAGS: ${PI5_CFLAGS}"
 fi
 
 log_info "Starting build (60-90 minutes)..."
@@ -174,7 +192,9 @@ PKG_DIR="$BUILD_DIR/libonnxruntime${LIB_VERSION}_${PACKAGE_VERSION}_arm64"
 mkdir -p "$PKG_DIR/DEBIAN"
 mkdir -p "$PKG_DIR/usr/lib/aarch64-linux-gnu"
 mkdir -p "$PKG_DIR/usr/lib/aarch64-linux-gnu/pkgconfig"
+mkdir -p "$PKG_DIR/usr/lib/pkgconfig"
 mkdir -p "$PKG_DIR/usr/include/onnxruntime"
+mkdir -p "$PKG_DIR/usr/share/doc/libonnxruntime${LIB_VERSION}"
 
 # Copy library
 cp "$LIB_FILE" "$PKG_DIR/usr/lib/aarch64-linux-gnu/"
@@ -189,6 +209,47 @@ if [[ -d "$BUILD_DIR/onnxruntime/include/onnxruntime" ]]; then
 else
     log_warn "Headers not found in expected location"
 fi
+
+# Create documentation
+log_info "Creating documentation..."
+cat > "$PKG_DIR/usr/share/doc/libonnxruntime${LIB_VERSION}/README.md" << EOF
+# ONNX Runtime ${LIB_VERSION} with XNNPACK
+
+This package provides ONNX Runtime with the XNNPACK execution provider
+optimized for Raspberry Pi 5 (Cortex-A76).
+
+## Features
+- XNNPACK execution provider for 2-4x faster inference on ARM
+- Optimized for YOLOv8/v11 single object detection models
+- Built with Pi5 optimization flags: -march=armv8.2-a+fp16+dotprod -mtune=cortex-a76
+
+## Verification
+Run: /usr/share/doc/libonnxruntime${LIB_VERSION}/verify-xnnpack.sh
+
+## Python Test
+python3 -c "import onnxruntime; print(onnxruntime.get_available_providers())"
+
+Built for PiTrac project.
+EOF
+
+cat > "$PKG_DIR/usr/share/doc/libonnxruntime${LIB_VERSION}/verify-xnnpack.sh" << 'VERIFYEOF'
+#!/bin/bash
+# Verify XNNPACK is properly included in ONNX Runtime
+LIB=$(find /usr/lib -name "libonnxruntime.so*" -type f 2>/dev/null | head -1)
+if [ -z "$LIB" ]; then
+    echo "ERROR: libonnxruntime.so not found"
+    exit 1
+fi
+COUNT=$(strings "$LIB" | grep -ci xnnpack || true)
+if [ "$COUNT" -gt 0 ]; then
+    echo "✓ XNNPACK VERIFIED: Found $COUNT XNNPACK symbols in $LIB"
+    exit 0
+else
+    echo "✗ XNNPACK NOT FOUND in $LIB"
+    exit 1
+fi
+VERIFYEOF
+chmod +x "$PKG_DIR/usr/share/doc/libonnxruntime${LIB_VERSION}/verify-xnnpack.sh"
 
 # Create pkg-config file
 log_info "Creating pkg-config file..."
@@ -205,6 +266,11 @@ Libs: -L\${libdir} -lonnxruntime
 Cflags: -I\${includedir}/onnxruntime
 EOF
 
+# Create symlink in /usr/lib/pkgconfig for compatibility
+cd "$PKG_DIR/usr/lib/pkgconfig"
+ln -s ../aarch64-linux-gnu/pkgconfig/onnxruntime.pc onnxruntime.pc
+cd "$BUILD_DIR"
+
 # Control file
 cat > "$PKG_DIR/DEBIAN/control" << EOF
 Package: libonnxruntime${LIB_VERSION}
@@ -214,22 +280,38 @@ Maintainer: PiTrac Build <build@pitrac.local>
 Section: libs
 Priority: optional
 Depends: libc6, libstdc++6, libgcc-s1, libgomp1
-Description: ONNX Runtime with XNNPACK
- High-performance inference with XNNPACK provider.
- 2-4x faster on Raspberry Pi 5.
+Description: ONNX Runtime with XNNPACK for Raspberry Pi 5
+ High-performance ML inference with XNNPACK execution provider.
+ Optimized for Raspberry Pi 5 (Cortex-A76) with 2-4x faster inference.
+ Built for YOLOv8/v11 object detection models.
 Provides: libonnxruntime
-Conflicts: libonnxruntime1.17.3, libonnxruntime1.18.1, libonnxruntime1.23.0
-Replaces: libonnxruntime1.17.3, libonnxruntime1.18.1, libonnxruntime1.23.0
+Conflicts: libonnxruntime1.17.3, libonnxruntime1.18.1, libonnxruntime1.22.1, libonnxruntime1.23.0
+Replaces: libonnxruntime1.17.3, libonnxruntime1.18.1, libonnxruntime1.22.1, libonnxruntime1.23.0
 EOF
 
 # postinst
-cat > "$PKG_DIR/DEBIAN/postinst" << 'EOF'
+cat > "$PKG_DIR/DEBIAN/postinst" << 'POSTINSTEOF'
 #!/bin/sh
 set -e
 ldconfig
-echo "ONNX Runtime with XNNPACK installed!"
+
+echo ""
+echo "=========================================="
+echo "  ONNX Runtime with XNNPACK installed!"
+echo "=========================================="
+echo ""
+echo "Verify XNNPACK is working:"
+echo "  /usr/share/doc/libonnxruntime*/verify-xnnpack.sh"
+echo ""
+echo "Or manually check:"
+echo "  strings /usr/lib/aarch64-linux-gnu/libonnxruntime.so | grep -ci xnnpack"
+echo ""
+echo "Python test:"
+echo "  python3 -c \"import onnxruntime; print(onnxruntime.get_available_providers())\""
+echo ""
+
 exit 0
-EOF
+POSTINSTEOF
 chmod 755 "$PKG_DIR/DEBIAN/postinst"
 
 # Build deb
