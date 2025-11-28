@@ -69,28 +69,35 @@ git clone --depth 1 --branch v${ONNX_VERSION} \
 cd onnxruntime
 
 # Fix the Eigen hash BEFORE running build.sh
+# GitLab changed the hash of their generated archives - need to update it
 log_info "Fixing Eigen hash mismatch..."
+OLD_HASH="be8be39fdbc6e60e94fa7870b280707069b5b81a"
 CORRECT_HASH="32b145f525a8308d7ab1c09388b2e288312d8eba"
 
-# Find and patch all files with the old hash
-find . -type f \( -name "*.cmake" -o -name "CMakeLists.txt" \) -exec grep -l "be8be39fdbc6e60e94fa7870b280707069b5b81a" {} \; | while read f; do
-    log_info "Patching: $f"
-    sed -i "s/be8be39fdbc6e60e94fa7870b280707069b5b81a/$CORRECT_HASH/g" "$f"
+# The hash is primarily in cmake/deps.txt - patch it directly
+if [[ -f "cmake/deps.txt" ]]; then
+    if grep -q "$OLD_HASH" cmake/deps.txt; then
+        log_info "Patching cmake/deps.txt"
+        sed -i "s/$OLD_HASH/$CORRECT_HASH/g" cmake/deps.txt
+    fi
+fi
+
+# Also search ALL text files for the hash (catches any location)
+log_info "Searching for any other files with the old Eigen hash..."
+grep -rl "$OLD_HASH" . 2>/dev/null | while read f; do
+    # Skip binary files and git directory
+    if [[ "$f" != *".git"* ]] && file "$f" | grep -q "text"; then
+        log_info "Patching: $f"
+        sed -i "s/$OLD_HASH/$CORRECT_HASH/g" "$f"
+    fi
 done
 
-# METHOD 2: Also pre-download Eigen to bypass download
-log_info "Pre-downloading Eigen to cache..."
-mkdir -p "$BUILD_DIR/eigen-cache"
-cd "$BUILD_DIR/eigen-cache"
-
-wget -q https://gitlab.com/libeigen/eigen/-/archive/e7248b26a1ed53fa030c5c459f7ea095dfd276ac/eigen-e7248b26a1ed53fa030c5c459f7ea095dfd276ac.zip
-ACTUAL_HASH=$(sha1sum eigen-e7248b26a1ed53fa030c5c459f7ea095dfd276ac.zip | cut -d' ' -f1)
-log_info "Eigen downloaded with hash: $ACTUAL_HASH"
-
-# Create a pre-populated cache directory structure
-mkdir -p "$BUILD_DIR/onnxruntime/build/Linux/Release/_deps"
-cp eigen-e7248b26a1ed53fa030c5c459f7ea095dfd276ac.zip \
-   "$BUILD_DIR/onnxruntime/build/Linux/Release/_deps/" 2>/dev/null || true
+# Verify the patch was applied
+if grep -q "$OLD_HASH" cmake/deps.txt 2>/dev/null; then
+    log_error "Failed to patch Eigen hash in cmake/deps.txt!"
+    exit 1
+fi
+log_success "Eigen hash patched successfully"
 
 cd "$BUILD_DIR/onnxruntime"
 
