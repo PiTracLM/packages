@@ -231,6 +231,9 @@ build_opencv() {
         -DENABLE_NEON=ON \
         -DOPENCV_DNN_OPENCL=OFF \
         -DOPENCV_ENABLE_NONFREE=ON \
+        -DWITH_LAPACK=ON \
+        -DOpenBLAS_INCLUDE_DIR=/usr/include/aarch64-linux-gnu \
+        -DOpenBLAS_LIB=/usr/lib/aarch64-linux-gnu/libopenblas.so \
         ..
 
     # Build with parallel jobs
