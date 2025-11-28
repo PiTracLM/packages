@@ -84,7 +84,7 @@ fi
 
 # Also search ALL text files for the hash (catches any location)
 log_info "Searching for any other files with the old Eigen hash..."
-grep -rl "$OLD_HASH" . 2>/dev/null | while read f; do
+for f in $(grep -rl "$OLD_HASH" . 2>/dev/null || true); do
     # Skip binary files and git directory
     if [[ "$f" != *".git"* ]] && file "$f" | grep -q "text"; then
         log_info "Patching: $f"
