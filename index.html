@@ -134,7 +134,7 @@
                 </tr>
                 <tr>
                     <td><strong>libmsgpack-cxx-dev</strong></td>
-                    <td>MessagePack C++ serialization library (6.1.1)</td>
+                    <td>MessagePack C++ serialization library (6.1.1 Bookworm, 7.0.0 Trixie)</td>
                     <td><span class="badge">arm64</span></td>
                     <td><span class="badge">bookworm</span> <span class="badge">trixie</span></td>
                 </tr>
@@ -146,15 +146,9 @@
                 </tr>
                 <tr>
                     <td><strong>libonnxruntime1.17.3</strong></td>
-                    <td>ONNX Runtime with XNNPACK (tested, stable version)</td>
+                    <td>ONNX Runtime with XNNPACK (stable, optimized for Pi5)</td>
                     <td><span class="badge">arm64</span></td>
                     <td><span class="badge">bookworm</span> <span class="badge">trixie</span></td>
-                </tr>
-                <tr>
-                    <td><strong>libonnxruntime1.22.1</strong></td>
-                    <td>ONNX Runtime with XNNPACK (newer version, Trixie only)</td>
-                    <td><span class="badge">arm64</span></td>
-                    <td><span class="badge">trixie</span></td>
                 </tr>
             </tbody>
         </table>
@@ -206,10 +200,7 @@ sudo apt install pitrac
 
 # Or install specific packages
 sudo apt install libopencv4.11 liblgpio1 libmsgpack-cxx-dev
-
-# ONNX Runtime - Choose one:
-sudo apt install libonnxruntime1.17.3  # Tested, stable version
-sudo apt install libonnxruntime1.22.1  # Newer version
+sudo apt install libonnxruntime1.17.3
 </div>
 
         <h2>Manual Package Installation</h2>
@@ -233,7 +224,7 @@ sudo apt-get install -f  # Fix any missing dependencies
         </ul>
 
         <div class="info">
-            <p><strong>Distribution Differences:</strong> Most packages are identical across distributions. Bookworm has ONNX Runtime 1.17.3, while Trixie offers both 1.17.3 (tested, stable) and 1.22.1 (newer version). Both packages can coexist, allowing users to choose based on their needs.</p>
+            <p><strong>Distribution Differences:</strong> Most packages are identical across distributions. Both use ONNX Runtime 1.17.3 (1.22.x has Pi5 performance issues). Trixie uses msgpack 7.0.0, Bookworm uses 6.1.1.</p>
         </div>
 
         <div class="warning">

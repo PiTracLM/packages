@@ -7,7 +7,7 @@ This repository builds and distributes Debian packages for the PiTrac golf ball 
 The build system handles two distinct challenges:
 - Building external dependencies (lgpio, msgpack, opencv, onnxruntime) that aren't available in standard repositories with the right versions or configurations
 - Packaging the PiTrac application itself from its separate source repository
-- Managing distribution-specific variations (Bookworm uses ONNX Runtime 1.17.3, Trixie uses 1.22.1 with Eigen hash fix)
+- Managing distribution-specific variations (both distros use ONNX Runtime 1.17.3)
 
 ## Why It Exists
 
@@ -58,13 +58,13 @@ lgpio (0.2.2) → msgpack (7.0.0) → activemq (3.9.5) → opencv (4.11.0) → p
          ↓              ↓                ↓                  ↓              ↓
    GPIO access    Serialization    Message Queue    Computer vision  Application
                                                             ↓
-                                                 ONNX Runtime (1.17.3/1.22.1)
-                                                   (independent, version varies by distro)
+                                                 ONNX Runtime (1.17.3)
+                                                   (independent, same version both distros)
 ```
 
 **Distribution-Specific Versions:**
-- **Bookworm (Debian 12)**: ONNX Runtime 1.17.3
-- **Trixie (Debian 13)**: ONNX Runtime 1.22.1 (includes Eigen hash fix)
+- **Bookworm (Debian 12)**: ONNX Runtime 1.17.3, msgpack 6.1.1
+- **Trixie (Debian 13)**: ONNX Runtime 1.17.3, msgpack 7.0.0
 
 ### Two Build Methods
 
@@ -168,10 +168,9 @@ cd pitrac-packages/scripts
 # Build ActiveMQ-CPP for specific distro
 ./build-activemq-native-pi.sh bookworm
 
-# Build ONNX Runtime (auto-selects version based on distro)
-# Bookworm: 1.17.3, Trixie: 1.22.1
+# Build ONNX Runtime (same version for both distros)
 ./build-onnxruntime-xnnpack-fixed.sh 1.17.3 bookworm
-./build-onnxruntime-xnnpack-fixed.sh 1.22.1 trixie
+./build-onnxruntime-xnnpack-fixed.sh 1.17.3 trixie
 
 # Build all packages natively for a specific distribution
 ./build-all-native-pi.sh -d bookworm all
@@ -191,8 +190,7 @@ The native build scripts detect the Pi model and apply appropriate optimizations
 - Others: Generic ARMv8 optimizations
 
 **ONNX Runtime Version Selection:**
-- Bookworm builds use ONNX Runtime 1.17.3 (stable, known working)
-- Trixie builds use ONNX Runtime 1.22.1 (includes Eigen hash mismatch fix)
+- Both Bookworm and Trixie use ONNX Runtime 1.17.3 (stable, avoids Pi5 FP16 issues in newer versions)
 
 ### Incremental Builds
 
@@ -408,16 +406,13 @@ sudo apt install libactivemq-cpp libactivemq-cpp-dev  # ActiveMQ-CPP
 sudo apt install libopencv4.11                   # OpenCV runtime
 sudo apt install libopencv-dev                   # OpenCV development
 
-# ONNX Runtime (version depends on your distribution)
-# Bookworm: libonnxruntime1.17.3
-# Trixie: libonnxruntime1.22.1
-sudo apt install libonnxruntime1.17.3   # If on Bookworm
-sudo apt install libonnxruntime1.22.1   # If on Trixie
+# ONNX Runtime (same version for both distributions)
+sudo apt install libonnxruntime1.17.3
 
 # The pitrac package pulls in all dependencies automatically
 ```
 
-**Note:** The APT repository automatically provides the correct package versions for your distribution. Bookworm users get ONNX Runtime 1.17.3, Trixie users get 1.22.1 with the Eigen hash fix.
+**Note:** The APT repository provides the same ONNX Runtime 1.17.3 for both distributions. Version 1.22.x had Pi5 performance issues.
 
 ### Version Pinning
 
@@ -525,15 +520,15 @@ Computer vision optimized for PiTrac:
 - Packages: `libopencv4.11` (runtime), `libopencv-dev` (development)
 - Same version across both Bookworm and Trixie
 
-### onnxruntime (1.17.3 / 1.22.1)
+### onnxruntime (1.17.3)
 
 High-performance ML inference with XNNPACK:
-- **Bookworm**: ONNX Runtime 1.17.3 (stable, tested)
-- **Trixie**: ONNX Runtime 1.22.1 (includes Eigen dependency hash fix)
+- **Both Bookworm and Trixie**: ONNX Runtime 1.17.3
+- Version 1.22.x has FP16/KleidiAI performance issues on Pi5
 - XNNPACK execution provider for 2-4x speedup on Pi 5
 - Built natively only (too complex for QEMU cross-compilation)
 - Build time: 60-90 minutes on Pi 5
-- Packages: `libonnxruntime1.17.3` or `libonnxruntime1.22.1`
+- Package: `libonnxruntime1.17.3`
 
 ### pitrac (date-based)
 
