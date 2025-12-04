@@ -3,14 +3,14 @@ Version: 3.9.5-1~trixie1
 Architecture: arm64
 Maintainer: PiTrac Build System <build@pitrac.org>
 Homepage: https://activemq.apache.org/components/cms/
-Depends: libapr1 | libapr1t64, libaprutil1 | libaprutil1t64, libssl3 | libssl3t64
+Depends: libapr1, libaprutil1, libssl3
 Priority: optional
 Section: libs
 Filename: pool/main/liba/libactivemq-cpp/libactivemq-cpp_3.9.5-1~trixie1_arm64.deb
-Size: 6026644
-SHA256: f1df3c1c4a9c6c7d08450dc5e7e73665b24ff016daf98a5bbba69988e66d840e
-SHA1: 78714b154162c3d67ca56ea3318fba3096c35038
-MD5sum: e533950ea9843c6d3681f1f912005184
+Size: 5927260
+SHA256: 05de53948fb96f181efafad9add69198277c3d8ad2b32d14cf609d4645970877
+SHA1: 19d9c96d8a5b07c610269ece7526577a3993694c
+MD5sum: a74de21649a11573b9ebdc5b2660e61b
 Description: ActiveMQ-CPP runtime libraries
  ActiveMQ-CPP is a C++ client library for Apache ActiveMQ.
  This package contains the runtime libraries.
