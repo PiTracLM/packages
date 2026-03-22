@@ -24,11 +24,10 @@ ACTIVEMQ_VERSION := 3.9.5-1
 OPENCV_VERSION := 4.12.0-1
 PITRAC_VERSION := $(shell date +%Y.%m.%d)-1
 
-# Distro-specific base versions (when upstream differs)
-# Note: Distribution suffixes are automatically appended by build-package.sh
-# ONNX Runtime 1.17.3 is used for BOTH distros - 1.22.x/1.23.x have Pi5 issues
-# See: https://github.com/microsoft/onnxruntime/issues/26300 (1.23.x Trixie broken)
-# See: https://github.com/microsoft/onnxruntime/issues/25824 (FP16 Cast overhead)
+# ncnn for Pi 5 inference (replaces ONNX Runtime as primary backend)
+NCNN_VERSION := 20250503-1
+
+# Legacy ONNX Runtime (kept for rollback, not in default build chain)
 BOOKWORM_ONNXRUNTIME_VERSION := 1.17.3-1
 TRIXIE_ONNXRUNTIME_VERSION := 1.17.3-1
 
@@ -41,7 +40,7 @@ ARCHS := arm64
 CURRENT_ARCH := $(shell dpkg --print-architecture)
 
 # Package build order (respects dependencies)
-PACKAGES := lgpio msgpack activemq opencv onnxruntime pitrac
+PACKAGES := lgpio msgpack activemq opencv ncnn pitrac
 
 # Colors for output
 RED := \033[0;31m
@@ -72,16 +71,18 @@ LGPIO_DEPS :=
 MSGPACK_DEPS :=
 ACTIVEMQ_DEPS :=
 OPENCV_DEPS := activemq
+NCNN_DEPS :=
 ONNXRUNTIME_DEPS :=
-PITRAC_DEPS := lgpio msgpack activemq opencv onnxruntime
+PITRAC_DEPS := lgpio msgpack activemq opencv ncnn
 
 # Package-specific configuration
 LGPIO_DEB_DEPS := build-essential,wget,unzip
 MSGPACK_DEB_DEPS := build-essential,cmake,wget,unzip,libboost-dev
 ACTIVEMQ_DEB_DEPS := build-essential,cmake,autoconf,automake,libtool,pkg-config,wget,libssl-dev,uuid-dev,libapr1-dev,libaprutil1-dev,libcppunit-dev
 OPENCV_DEB_DEPS := build-essential,cmake,git,pkg-config,wget,unzip,zlib1g-dev,libgtk-3-dev,libavcodec-dev,libavformat-dev,libswscale-dev,libv4l-dev,libxvidcore-dev,libx264-dev,libjpeg-dev,libpng-dev,libtiff-dev,gfortran,openexr,libatlas-base-dev,python3-dev,python3-numpy,libtbb-dev,libdc1394-dev,libopenexr-dev,libgstreamer-plugins-base1.0-dev,libgstreamer1.0-dev,libglu1-mesa-dev,libgl1-mesa-dev
+NCNN_DEB_DEPS := build-essential,cmake,git,pkg-config
 ONNXRUNTIME_DEB_DEPS := build-essential,cmake,git,pkg-config,python3-dev,python3-pip,python3-numpy,patchelf,protobuf-compiler,libprotobuf-dev,libre2-dev,libssl-dev,libcurl4-openssl-dev,ninja-build
-PITRAC_DEB_DEPS := build-essential,meson,ninja-build,pkg-config,git,libboost-system1.74.0,libboost-thread1.74.0,libboost-filesystem1.74.0,libboost-program-options1.74.0,libboost-timer1.74.0,libboost-log1.74.0,libboost-regex1.74.0,libboost-dev,libcamera0.0.3,libcamera-dev,libfmt-dev,libssl-dev,liblgpio-dev,liblgpio1,libmsgpack-cxx-dev,libactivemq-cpp,libactivemq-cpp-dev,libapr1,libaprutil1,libapr1-dev,libaprutil1-dev,libyaml-cpp-dev,libssl3,libonnxruntime1.17.3,libonnxruntime-dev
+PITRAC_DEB_DEPS := build-essential,meson,ninja-build,pkg-config,git,libboost-system1.74.0,libboost-thread1.74.0,libboost-filesystem1.74.0,libboost-program-options1.74.0,libboost-timer1.74.0,libboost-log1.74.0,libboost-regex1.74.0,libboost-dev,libcamera0.0.3,libcamera-dev,libfmt-dev,libssl-dev,liblgpio-dev,liblgpio1,libmsgpack-cxx-dev,libactivemq-cpp,libactivemq-cpp-dev,libapr1,libaprutil1,libapr1-dev,libaprutil1-dev,libyaml-cpp-dev,libssl3,libncnn-dev
 
 .PHONY: help setup clean build-all build-all-bookworm build-all-trixie $(foreach pkg,$(PACKAGES),build-$(pkg)-bookworm build-$(pkg)-trixie) repo-update install-deps check-docker
 
@@ -126,13 +127,11 @@ versions: ## Show current package versions
 	@echo "  msgpack:     $(MSGPACK_VERSION) → $(MSGPACK_VERSION)~bookworm1 / $(MSGPACK_VERSION)~trixie1"
 	@echo "  activemq:    $(ACTIVEMQ_VERSION) → $(ACTIVEMQ_VERSION)~bookworm1 / $(ACTIVEMQ_VERSION)~trixie1"
 	@echo "  opencv:      $(OPENCV_VERSION) → $(OPENCV_VERSION)~bookworm1 / $(OPENCV_VERSION)~trixie1"
+	@echo "  ncnn:        $(NCNN_VERSION) → $(NCNN_VERSION)~bookworm1 / $(NCNN_VERSION)~trixie1"
 	@echo "  pitrac:      $(PITRAC_VERSION) → $(PITRAC_VERSION)~bookworm1 / $(PITRAC_VERSION)~trixie1"
 	@echo ""
-	@echo "Bookworm-specific:"
-	@echo "  onnxruntime: $(BOOKWORM_ONNXRUNTIME_VERSION) → $(BOOKWORM_ONNXRUNTIME_VERSION)~bookworm1"
-	@echo ""
-	@echo "Trixie-specific:"
-	@echo "  onnxruntime: $(TRIXIE_ONNXRUNTIME_VERSION) → $(TRIXIE_ONNXRUNTIME_VERSION)~trixie1 (Eigen hash fix included)"
+	@echo "Legacy (not in default build chain):"
+	@echo "  onnxruntime: $(BOOKWORM_ONNXRUNTIME_VERSION) (bookworm) / $(TRIXIE_ONNXRUNTIME_VERSION) (trixie)"
 
 setup: ## Create build directories and setup environment
 	$(call log_info,Setting up multi-distro build environment...)
@@ -175,10 +174,10 @@ clean:
 build-all: build-all-bookworm build-all-trixie ## Build all packages for all distributions
 	$(call log_success,All packages built for all distributions)
 
-build-all-bookworm: setup check-docker build-lgpio-bookworm build-msgpack-bookworm build-activemq-bookworm build-opencv-bookworm build-onnxruntime-bookworm build-pitrac-bookworm ## Build all packages for Bookworm
+build-all-bookworm: setup check-docker build-lgpio-bookworm build-msgpack-bookworm build-activemq-bookworm build-opencv-bookworm build-ncnn-bookworm build-pitrac-bookworm ## Build all packages for Bookworm
 	$(call log_success,All Bookworm packages built successfully)
 
-build-all-trixie: setup check-docker build-lgpio-trixie build-msgpack-trixie build-activemq-trixie build-opencv-trixie build-onnxruntime-trixie build-pitrac-trixie ## Build all packages for Trixie
+build-all-trixie: setup check-docker build-lgpio-trixie build-msgpack-trixie build-activemq-trixie build-opencv-trixie build-ncnn-trixie build-pitrac-trixie ## Build all packages for Trixie
 	$(call log_success,All Trixie packages built successfully)
 
 # Bookworm build targets
@@ -202,15 +201,21 @@ build-opencv-bookworm: build-activemq-bookworm
 	@./scripts/build-package.sh opencv arm64 $(OPENCV_VERSION) bookworm
 	$(call log_success,opencv built for bookworm/arm64)
 
+build-ncnn-bookworm: setup
+	$(call log_info,Building ncnn $(NCNN_VERSION) for bookworm/arm64...)
+	@./scripts/build-ncnn-native.sh $(NCNN_VERSION) bookworm
+	$(call log_success,ncnn built for bookworm/arm64)
+
+build-pitrac-bookworm: build-opencv-bookworm build-ncnn-bookworm
+	$(call log_info,Building pitrac for bookworm/arm64...)
+	@PITRAC_REPO=$(PITRAC_REPO) PITRAC_BRANCH=$(PITRAC_BRANCH) ./scripts/build-package.sh pitrac arm64 $(PITRAC_VERSION) bookworm
+	$(call log_success,pitrac built for bookworm/arm64)
+
+# Legacy ONNX Runtime targets (kept for rollback)
 build-onnxruntime-bookworm: setup
 	$(call log_info,Building onnxruntime $(BOOKWORM_ONNXRUNTIME_VERSION) for bookworm/arm64...)
 	@./scripts/build-package.sh onnxruntime arm64 $(BOOKWORM_ONNXRUNTIME_VERSION) bookworm
 	$(call log_success,onnxruntime built for bookworm/arm64)
-
-build-pitrac-bookworm: build-opencv-bookworm build-onnxruntime-bookworm
-	$(call log_info,Building pitrac for bookworm/arm64...)
-	@PITRAC_REPO=$(PITRAC_REPO) PITRAC_BRANCH=$(PITRAC_BRANCH) ./scripts/build-package.sh pitrac arm64 $(PITRAC_VERSION) bookworm
-	$(call log_success,pitrac built for bookworm/arm64)
 
 # Trixie build targets
 build-lgpio-trixie: setup
@@ -233,15 +238,21 @@ build-opencv-trixie: build-activemq-trixie
 	@./scripts/build-package.sh opencv arm64 $(OPENCV_VERSION) trixie
 	$(call log_success,opencv built for trixie/arm64)
 
+build-ncnn-trixie: setup
+	$(call log_info,Building ncnn $(NCNN_VERSION) for trixie/arm64...)
+	@./scripts/build-ncnn-native.sh $(NCNN_VERSION) trixie
+	$(call log_success,ncnn built for trixie/arm64)
+
+build-pitrac-trixie: build-opencv-trixie build-ncnn-trixie
+	$(call log_info,Building pitrac for trixie/arm64...)
+	@PITRAC_REPO=$(PITRAC_REPO) PITRAC_BRANCH=$(PITRAC_BRANCH) ./scripts/build-package.sh pitrac arm64 $(PITRAC_VERSION) trixie
+	$(call log_success,pitrac built for trixie/arm64)
+
+# Legacy ONNX Runtime targets (kept for rollback)
 build-onnxruntime-trixie: setup
 	$(call log_info,Building onnxruntime $(TRIXIE_ONNXRUNTIME_VERSION) for trixie/arm64...)
 	@./scripts/build-package.sh onnxruntime arm64 $(TRIXIE_ONNXRUNTIME_VERSION) trixie
 	$(call log_success,onnxruntime built for trixie/arm64)
-
-build-pitrac-trixie: build-opencv-trixie build-onnxruntime-trixie
-	$(call log_info,Building pitrac for trixie/arm64...)
-	@PITRAC_REPO=$(PITRAC_REPO) PITRAC_BRANCH=$(PITRAC_BRANCH) ./scripts/build-package.sh pitrac arm64 $(PITRAC_VERSION) trixie
-	$(call log_success,pitrac built for trixie/arm64)
 
 repo-init: setup
 	$(call log_info,Initializing APT repository...)
