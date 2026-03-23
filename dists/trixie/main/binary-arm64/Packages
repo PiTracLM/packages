@@ -90,6 +90,23 @@ Description: MessagePack implementation for C++ - development files
  .
  This package contains the C++ header-only library files.
 
+Package: libncnn-dev
+Version: 20250503-1~trixie1
+Architecture: arm64
+Maintainer: PiTrac Build <build@pitrac.local>
+Depends: libc6-dev, libstdc++-dev | libstdc++6
+Priority: optional
+Section: libdevel
+Filename: pool/main/libn/libncnn-dev/libncnn-dev_20250503-1~trixie1_arm64.deb
+Size: 1592008
+SHA256: 07c319b337912c6f44f70ad7b34ee08fd276269e1fc150f11c610cc5303ebb1c
+SHA1: 93d8cca6a1212817017a2875a7fac5cb8214123d
+MD5sum: bd5a20cff84bd6c148de2683741aa49c
+Description: ncnn inference framework for Raspberry Pi 5
+ Lightweight neural network inference optimized for ARM Cortex-A76.
+ Static library with hand-tuned NEON assembly kernels.
+ Built with Pi 5 flags: -march=armv8.2-a+fp16+dotprod -mtune=cortex-a76 -O3 -ftree-vectorize -ffast-math
+
 Package: libonnxruntime1.17.3
 Version: 1.17.3-xnnpack3~trixie1
 Architecture: arm64
