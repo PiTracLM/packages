@@ -32,45 +32,6 @@ Description: ActiveMQ-CPP development files
  ActiveMQ-CPP is a C++ client library for Apache ActiveMQ.
  This package contains the development files including headers and libraries.
 
-Package: liblgpio-dev
-Version: 0.2.2-1~trixie1
-Architecture: arm64
-Maintainer: PiTrac Build System <build@pitrac.org>
-Depends: liblgpio1 (= 0.2.2-1~trixie1)
-Homepage: http://abyz.me.uk/lg/
-Priority: optional
-Section: libdevel
-Filename: pool/main/libl/liblgpio-dev/liblgpio-dev_0.2.2-1~trixie1_arm64.deb
-Size: 24560
-SHA256: 88728f186a543947099e791aee0d7d617accaee7f7dcdb488fd1cf8be12a9322
-SHA1: ea922547e772d2070a546870f6f16b76b6dd4901
-MD5sum: bb6645f402640ae2771d0d4741d38977
-Description: GPIO library for Linux - development files
- A library for handling GPIO operations on Linux systems.
- This package contains the development files (headers and static libraries).
-Replaces: liblgpio-dev (<= 0.2.2-1~rpt99)
-Conflicts: liblgpio-dev (<= 0.2.2-1~rpt99)
-Provides: liblgpio-dev
-
-Package: liblgpio1
-Version: 0.2.2-1~trixie1
-Architecture: arm64
-Maintainer: PiTrac Build System <build@pitrac.org>
-Homepage: http://abyz.me.uk/lg/
-Priority: optional
-Section: libs
-Filename: pool/main/libl/liblgpio1/liblgpio1_0.2.2-1~trixie1_arm64.deb
-Size: 42792
-SHA256: 25190e5b263dbda4553f48d94d242a694fba1cb38049f0d1caa5f5061e1c7bc3
-SHA1: d523c8d777262c3cd05cf5d575f00ae653d6469d
-MD5sum: f5074bc90fb1616a83594439d7f71c82
-Description: GPIO library for Linux - runtime
- A library for handling GPIO operations on Linux systems.
- This package contains the runtime library.
-Replaces: liblgpio1 (<= 0.2.2-1~rpt99)
-Conflicts: liblgpio1 (<= 0.2.2-1~rpt99)
-Provides: liblgpio1
-
 Package: libmsgpack-cxx-dev
 Version: 1:7.0.0-2~trixie1
 Architecture: all
