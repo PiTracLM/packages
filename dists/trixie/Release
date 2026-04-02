@@ -1,13 +1,13 @@
 Origin: PiTrac
 Label: PiTrac Packages
 Codename: trixie
-Date: Sun, 23 Mar 2026 20:30:00 UTC
+Date: Tue, 01 Apr 2026 21:00:00 UTC
 Architectures: arm64
 Components: main contrib non-free
 Description: PiTrac package repository for Debian/Raspbian Trixie (Debian 13)
 MD5Sum:
- a450e6d05b8b4ea576042d77a7317bde 6506 main/binary-arm64/Packages
- 968c9fffeb670de3dca0dca4cfc327a1 2266 main/binary-arm64/Packages.gz
+ 2399b5f1ac8b4b2d17830aa41346b51f 6667 main/binary-arm64/Packages
+ f19d3cebfbc6e679a1ed740248fa5db1 2298 main/binary-arm64/Packages.gz
  0e90e443c5cfb1de136873897f18e0ec 152 main/binary-arm64/Release
  d41d8cd98f00b204e9800998ecf8427e 0 main/source/Sources
  7029066c27ac6f5ef18d660d5741979a 20 main/source/Sources.gz
@@ -25,8 +25,8 @@ MD5Sum:
  7029066c27ac6f5ef18d660d5741979a 20 non-free/source/Sources.gz
  12caff4c427d9b4335a89c87b00e853b 157 non-free/source/Release
 SHA1:
- 25fdf2e36a00581b974096bf097d5a80ecd2ed9a 6506 main/binary-arm64/Packages
- 1a0635bef7a66056a97f2bd8d889ce2f3a0635db 2266 main/binary-arm64/Packages.gz
+ 626d7a8ba71c1548bb0b3f6b02c7feb11b2e9a29 6667 main/binary-arm64/Packages
+ de86ec33e601d3fa92d74ae22ffc89b2cd7b8c50 2298 main/binary-arm64/Packages.gz
  176b199254c844b03ac003cf6e31333c05ccdbbe 152 main/binary-arm64/Release
  da39a3ee5e6b4b0d3255bfef95601890afd80709 0 main/source/Sources
  46c6643f07aa7f6bfe7118de926b86defc5087c4 20 main/source/Sources.gz
@@ -44,8 +44,8 @@ SHA1:
  46c6643f07aa7f6bfe7118de926b86defc5087c4 20 non-free/source/Sources.gz
  69f890e0342d2eaf2c96eb0aac77b7db295cd0dd 157 non-free/source/Release
 SHA256:
- b73dae48e5015b3b0f20ddeac92ab4966c9a4bb504ef8cf448d3e908dab1f488 6506 main/binary-arm64/Packages
- 8d7a4c23da3c2176f78205d80ab2c745ad67ec5ed8e2ac0673a7af3b8b6dd1f0 2266 main/binary-arm64/Packages.gz
+ 3df0cff229af5651800ae9ff1ed49ec753f9b6f01dc1ddb462b62270ae789cd4 6667 main/binary-arm64/Packages
+ a2d1f18323666d58655e67fde7f4ac2549ef459718ab4e52729e6ebf70367b06 2298 main/binary-arm64/Packages.gz
  0ce2047036bc7370988a386649fa445cfa0b7f9e8c754e40e1502d766f5bac0f 152 main/binary-arm64/Release
  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 main/source/Sources
  59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 main/source/Sources.gz

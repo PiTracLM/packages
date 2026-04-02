@@ -4,13 +4,13 @@ Hash: SHA256
 Origin: PiTrac
 Label: PiTrac Packages
 Codename: trixie
-Date: Sun, 23 Mar 2026 20:30:00 UTC
+Date: Tue, 01 Apr 2026 21:00:00 UTC
 Architectures: arm64
 Components: main contrib non-free
 Description: PiTrac package repository for Debian/Raspbian Trixie (Debian 13)
 MD5Sum:
- a450e6d05b8b4ea576042d77a7317bde 6506 main/binary-arm64/Packages
- 968c9fffeb670de3dca0dca4cfc327a1 2266 main/binary-arm64/Packages.gz
+ 2399b5f1ac8b4b2d17830aa41346b51f 6667 main/binary-arm64/Packages
+ f19d3cebfbc6e679a1ed740248fa5db1 2298 main/binary-arm64/Packages.gz
  0e90e443c5cfb1de136873897f18e0ec 152 main/binary-arm64/Release
  d41d8cd98f00b204e9800998ecf8427e 0 main/source/Sources
  7029066c27ac6f5ef18d660d5741979a 20 main/source/Sources.gz
@@ -28,8 +28,8 @@ MD5Sum:
  7029066c27ac6f5ef18d660d5741979a 20 non-free/source/Sources.gz
  12caff4c427d9b4335a89c87b00e853b 157 non-free/source/Release
 SHA1:
- 25fdf2e36a00581b974096bf097d5a80ecd2ed9a 6506 main/binary-arm64/Packages
- 1a0635bef7a66056a97f2bd8d889ce2f3a0635db 2266 main/binary-arm64/Packages.gz
+ 626d7a8ba71c1548bb0b3f6b02c7feb11b2e9a29 6667 main/binary-arm64/Packages
+ de86ec33e601d3fa92d74ae22ffc89b2cd7b8c50 2298 main/binary-arm64/Packages.gz
  176b199254c844b03ac003cf6e31333c05ccdbbe 152 main/binary-arm64/Release
  da39a3ee5e6b4b0d3255bfef95601890afd80709 0 main/source/Sources
  46c6643f07aa7f6bfe7118de926b86defc5087c4 20 main/source/Sources.gz
@@ -47,8 +47,8 @@ SHA1:
  46c6643f07aa7f6bfe7118de926b86defc5087c4 20 non-free/source/Sources.gz
  69f890e0342d2eaf2c96eb0aac77b7db295cd0dd 157 non-free/source/Release
 SHA256:
- b73dae48e5015b3b0f20ddeac92ab4966c9a4bb504ef8cf448d3e908dab1f488 6506 main/binary-arm64/Packages
- 8d7a4c23da3c2176f78205d80ab2c745ad67ec5ed8e2ac0673a7af3b8b6dd1f0 2266 main/binary-arm64/Packages.gz
+ 3df0cff229af5651800ae9ff1ed49ec753f9b6f01dc1ddb462b62270ae789cd4 6667 main/binary-arm64/Packages
+ a2d1f18323666d58655e67fde7f4ac2549ef459718ab4e52729e6ebf70367b06 2298 main/binary-arm64/Packages.gz
  0ce2047036bc7370988a386649fa445cfa0b7f9e8c754e40e1502d766f5bac0f 152 main/binary-arm64/Release
  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 main/source/Sources
  59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 main/source/Sources.gz
@@ -67,17 +67,17 @@ SHA256:
  68ccf15eecc8b20bc7cb81410918b3cb2735c86a61eb40f0600009fc2609b924 157 non-free/source/Release
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEyZYIvEEP6x7Or8pCXnlcBqs6YMwFAmnBsI4ACgkQXnlcBqs6
-YMx0VBAAtcVlJ58IKzmtsLPAUsN/MmnTcrrMH4zgjyv3GWl9Z8cmJka4+U0rvIoX
-bZzrzydHiVwYKqN8q5eAXqg1NG8HCAWK3ZAzRGcCCbyBMCbMIzte16W5wXG9pVuJ
-h/C7/34SmaDTZMggnTrWu1in0K1vKmu8fpA33m5P01FkozclUg4dldrPEI0Qm6po
-Se0nLhJTKyW6kaJFk3Nsd19M66MH5F3p6mvpeMwHLYs8kCbBAbbjzLd8Ei/oVXDY
-ULbtWp1Aqj7k68RIsmzcgwJa2tMgbCtinBtXcYMD/4mRVNdjCcVBu2yVpKaNjRYP
-BDGGR2u5sEVp39dRW+kK7YXsFfpJpWKtxTJmfavqXil6H1C4FQEUZIoUZcnwvF+F
-8rjYkGehk2nzbKJr+nxpPSf+Wrdapqz6HXFy6zsS+jHonq9LEtAqNHob8XNhM5hm
-U7lMQyPaHvqs1PYAQV5P89EOOh8ERSbzcyjA19QRDAYgRMzNsbsQzF8l/n7QghR4
-ZoiC24F9XqggpCYr2Wjgl7kTVv6do48e8aM87UBvKctafGvvfe2e47kn/jhxtXN3
-Ux01X5Jb06h4ePYMWMiLBKFBnrqdMW/1QHiMYoF0xfv9lwAG9P/w8JSu0dAMiGdZ
-89MatJG7RbjXZuvpyY692L/LgOm4iFlX79UGsMtDYASa9B/nVr8=
-=svsc
+iQIzBAEBCAAdFiEEyZYIvEEP6x7Or8pCXnlcBqs6YMwFAmnNwuoACgkQXnlcBqs6
+YMxBRxAAqQ1Ug2TB5D9cPC3PVAHHA2i9z4NgFSLE5HYS15vsXOkRTBeArm57qQJV
+6LYEambwNjR1YEb/MLeXuiVErRfJqaD8zcl0PqlyE2uL426GMu/J8ykiIJxWPYUz
+bZUfwlvB6hi+f2eo58rGE6pPGMAoFxVs2hVkQGjic/d7N58Ei2VFcee3LJ2TbfEs
+ddOdZktGFA/nuAPKcay9loA7rKd5GuVgNWeppy0XMxrwvwEPx8bEMZdQT87KbEdy
+8mGl1o1P8tPf5VciRCD9G5sQ1X/yGZnuYaChwKNdNAqOpfOs4K94xPURH6RLPuSc
+nnMrKgMOtTs9KJ6E6l9vc2CEO6VDgyZ5re6XB8gqgYVBgEN1BzYvWdft6WMZlzD2
+CMrlkwkOLREMqJ9RnP5USXs5jD/CYaryR/O0Pm9hIRXC0yGNOYjhleYZJ6EPAvba
+LjwWyXm8ASxmphuqh2LVfL13o6c1ZvS01KMPMPEyx4HIW9h21Hb/itUdYu6ldhGe
+0kbsayKyib7fdN2Te65JAe4W7/0R6S1oTLtDxc6fc/aMMyiSrzWybHYifVHhqkKP
+vedJm6x6BU9UxpeNfjk5WNmh5XWiN35BHkuIkX8Pp0jfJDXtfmtRTQiBhyTm5wvL
+cnJm12ySJWhQUhB/SyDFY6TGulxs5oUjEoP3UgsK6U6HFdpXD6s=
+=RTjC
 -----END PGP SIGNATURE-----

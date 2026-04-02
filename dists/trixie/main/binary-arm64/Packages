@@ -108,20 +108,20 @@ Conflicts: libonnxruntime1.17.3, libonnxruntime1.18.1, libonnxruntime1.23.0
 Replaces: libonnxruntime1.17.3, libonnxruntime1.18.1, libonnxruntime1.23.0
 
 Package: libopencv-dev
-Version: 4.11.0-1~trixie1
+Version: 4.13.0-1~trixie1
 Architecture: arm64
 Maintainer: PiTrac Build System <build@pitrac.org>
 Homepage: https://opencv.org/
-Depends: libopencv4.11 (= 4.11.0-1~trixie1), libgtk-3-dev, libavcodec-dev,
+Depends: libopencv4.13 (= 4.13.0-1~trixie1), libgtk-3-dev, libavcodec-dev,
  libavformat-dev, libswscale-dev, libtbb-dev, libgstreamer1.0-dev,
  libgstreamer-plugins-base1.0-dev
 Priority: optional
 Section: libdevel
-Filename: pool/main/libo/libopencv-dev/libopencv-dev_4.11.0-1~trixie1_arm64.deb
-Size: 9055360
-SHA256: a377456ca865aa1d05f5a7e577ccdab9bf45cb083ba324b2d12652b00e437acc
-SHA1: 3792287e1923d2a8f793409e7d35a276086dad99
-MD5sum: 9bff88b1f5387dc09c35d7add29bb151
+Filename: pool/main/libo/libopencv-dev/libopencv-dev_4.13.0-1~trixie1_arm64.deb
+Size: 9585912
+SHA256: ef198daa4303e7371d850c0520e1c799c22e7f90e5bd05f3cf87bd8ab7c7ddde
+SHA1: 8bed6c0912a0086bf26aff50d7cd15f3869d93a5
+MD5sum: 40baab44aeab1c164c31b932b5578dd4
 Description: OpenCV development files
  OpenCV (Open Source Computer Vision Library) is a library of programming
  functions mainly aimed at real-time computer vision.
@@ -129,8 +129,8 @@ Description: OpenCV development files
  This package contains the development files including headers and libraries
  needed to build applications using OpenCV.
 
-Package: libopencv4.11
-Version: 4.11.0-1~trixie1
+Package: libopencv4.13
+Version: 4.13.0-1~trixie1
 Architecture: arm64
 Maintainer: PiTrac Build System <build@pitrac.org>
 Homepage: https://opencv.org/
@@ -141,14 +141,18 @@ Depends: libgtk-3-0 | libgtk-3-0t64, libavcodec59 | libavcodec60 | libavcodec61,
  libpng16-16 | libpng16-16t64, libtiff6 | libtiff6t64 | libtiff5
 Priority: optional
 Section: libs
-Filename: pool/main/libo/libopencv4.11/libopencv4.11_4.11.0-1~trixie1_arm64.deb
-Size: 8279024
-SHA256: 4e8a59588db1840517cf18e6e4989164c59a55dbdf8000d03e448c2a707dec3e
-SHA1: 8711af0bfe4cc8e23a0b8151a7158ad97ad8dce1
-MD5sum: 66254d6c132ceb9902a4a99600f0a0e3
+Filename: pool/main/libo/libopencv4.13/libopencv4.13_4.13.0-1~trixie1_arm64.deb
+Size: 9019028
+SHA256: 7c0e25f7ca5eb41ce7725c3ba3e6e3f07099324bb77b53499201aeff8266ce8e
+SHA1: 4c6b70cd4b2152b18d1a8fc18a9c2f8a38062c62
+MD5sum: 4c3f97bbcccacfbb2158dd515391d928
 Description: OpenCV runtime libraries
  OpenCV (Open Source Computer Vision Library) is a library of programming
  functions mainly aimed at real-time computer vision.
  .
- This package contains the runtime libraries for OpenCV 4.11.0.
+ This package contains the runtime libraries for OpenCV 4.13.0.
+ Optimized for Raspberry Pi 5 (Cortex-A76) with KleidiCV HAL.
+Provides: libopencv
+Conflicts: libopencv4.11, libopencv4.12
+Replaces: libopencv4.11, libopencv4.12
 

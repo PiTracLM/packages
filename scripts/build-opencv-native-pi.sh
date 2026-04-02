@@ -1,5 +1,5 @@
 #!/bin/bash
-# Native Raspberry Pi 5 build script for OpenCV 4.11.0 deb packages
+# Native Raspberry Pi 5 build script for OpenCV 4.13.0 deb packages
 # This script builds OpenCV directly on Pi hardware, avoiding QEMU issues
 # Produces identical packages to the Docker build
 # Usage: ./build-opencv-native-pi.sh [distro]
@@ -8,8 +8,8 @@
 set -euo pipefail
 
 # Version configuration
-OPENCV_VERSION="4.12.0"
-BASE_VERSION="4.12.0-1"
+OPENCV_VERSION="4.13.0"
+BASE_VERSION="4.13.0-1"
 DEBIAN_ARCH="arm64"
 DISTRO="${1:-bookworm}"
 
@@ -226,8 +226,8 @@ build_opencv() {
         -DBUILD_opencv_apps=OFF \
         -DBUILD_opencv_js=OFF \
         -DBUILD_LIST="core,imgproc,imgcodecs,calib3d,features2d,flann,highgui,video,videoio,photo,dnn,objdetect,xfeatures2d,ximgproc,aruco" \
-        -DCPU_BASELINE=DETECT \
-        -DCPU_DISPATCH="" \
+        -DCPU_BASELINE=NEON \
+        -DCPU_DISPATCH="NEON_FP16,NEON_DOTPROD" \
         -DENABLE_NEON=ON \
         -DOPENCV_DNN_OPENCL=OFF \
         -DOPENCV_ENABLE_NONFREE=ON \
@@ -256,7 +256,7 @@ create_packages() {
     make DESTDIR="$DESTDIR" install
 
     # Create package directories
-    PKG_DIR="$BUILD_DIR/libopencv4.12_${PACKAGE_VERSION}_${DEBIAN_ARCH}"
+    PKG_DIR="$BUILD_DIR/libopencv4.13_${PACKAGE_VERSION}_${DEBIAN_ARCH}"
     PKG_DEV_DIR="$BUILD_DIR/libopencv-dev_${PACKAGE_VERSION}_${DEBIAN_ARCH}"
 
     mkdir -p "$PKG_DIR/DEBIAN"
@@ -289,7 +289,7 @@ includedir=${prefix}/include/opencv4
 
 Name: OpenCV
 Description: Open Source Computer Vision Library
-Version: 4.12.0
+Version: 4.13.0
 Libs: -L${libdir} -lopencv_highgui -lopencv_objdetect -lopencv_photo -lopencv_video -lopencv_calib3d -lopencv_features2d -lopencv_flann -lopencv_videoio -lopencv_imgcodecs -lopencv_imgproc -lopencv_core -lopencv_dnn -lopencv_xfeatures2d -lopencv_ximgproc -lopencv_aruco
 Libs.private: -ldl -lm -lpthread -lrt
 Cflags: -I${includedir}
@@ -298,7 +298,7 @@ EOF
 
     # Create runtime package control file
     cat > "$PKG_DIR/DEBIAN/control" << EOF
-Package: libopencv4.12
+Package: libopencv4.13
 Version: ${PACKAGE_VERSION}
 Architecture: ${DEBIAN_ARCH}
 Maintainer: PiTrac Build System <build@pitrac.org>
@@ -314,11 +314,11 @@ Description: OpenCV runtime libraries
  OpenCV (Open Source Computer Vision Library) is a library of programming
  functions mainly aimed at real-time computer vision.
  .
- This package contains the runtime libraries for OpenCV 4.12.0.
+ This package contains the runtime libraries for OpenCV 4.13.0.
  Optimized for Raspberry Pi 5 (Cortex-A76) with KleidiCV HAL.
 Provides: libopencv
-Conflicts: libopencv4.11
-Replaces: libopencv4.11
+Conflicts: libopencv4.11, libopencv4.12
+Replaces: libopencv4.11, libopencv4.12
 EOF
 
     # Create development package control file
@@ -330,7 +330,7 @@ Maintainer: PiTrac Build System <build@pitrac.org>
 Section: libdevel
 Priority: optional
 Homepage: https://opencv.org/
-Depends: libopencv4.12 (= ${PACKAGE_VERSION}), libgtk-3-dev, libavcodec-dev,
+Depends: libopencv4.13 (= ${PACKAGE_VERSION}), libgtk-3-dev, libavcodec-dev,
  libavformat-dev, libswscale-dev, libtbb-dev, libgstreamer1.0-dev,
  libgstreamer-plugins-base1.0-dev
 Description: OpenCV development files
